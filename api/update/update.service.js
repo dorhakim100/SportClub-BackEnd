@@ -1,0 +1,150 @@
+import { ObjectId } from 'mongodb'
+
+import { logger } from '../../services/logger.service.js'
+import { makeId } from '../../services/util.service.js'
+import { dbService } from '../../services/db.service.js'
+import { asyncLocalStorage } from '../../services/als.service.js'
+
+const PAGE_SIZE = 6
+
+export const updateService = {
+  remove,
+  query,
+  getById,
+  add,
+  update,
+  saveUpdatesOrder,
+}
+
+async function query(filterBy = { txt: '' }) {
+  try {
+    const criteria = _buildCriteria(filterBy)
+    const sort = _buildSort(filterBy)
+
+    const collection = await dbService.getCollection('update')
+    var updateCursor = await collection.find(criteria, { sort })
+
+    if (filterBy.pageIdx !== undefined && !filterBy.isAll) {
+      updateCursor.skip(filterBy.pageIdx * PAGE_SIZE).limit(PAGE_SIZE)
+    }
+
+    var updates = updateCursor.toArray()
+    updates = [...updates].reverse() // getting latest updates logic
+
+    return updates
+  } catch (err) {
+    logger.error('cannot find updates', err)
+    throw err
+  }
+}
+
+async function getById(updateId) {
+  try {
+    const criteria = { _id: ObjectId.createFromHexString(updateId) }
+
+    const collection = await dbService.getCollection('update')
+    const update = await collection.findOne(criteria)
+
+    update.createdAt = update._id.getTimestamp()
+    return update
+  } catch (err) {
+    logger.error(`while finding update ${updateId}`, err)
+    throw err
+  }
+}
+
+async function remove(updateId) {
+  const { loggedinUser } = asyncLocalStorage.getStore()
+  const { _id: ownerId, isAdmin } = loggedinUser
+
+  try {
+    const criteria = {
+      _id: ObjectId.createFromHexString(updateId),
+    }
+    if (!isAdmin) criteria['owner._id'] = ownerId
+
+    const collection = await dbService.getCollection('update')
+    const res = await collection.deleteOne(criteria)
+
+    if (res.deletedCount === 0) throw 'Not your update'
+    return updateId
+  } catch (err) {
+    logger.error(`cannot remove update ${updateId}`, err)
+    throw err
+  }
+}
+
+async function add(update) {
+  try {
+    const collection = await dbService.getCollection('update')
+    await collection.insertOne(update)
+
+    return update
+  } catch (err) {
+    logger.error('cannot insert update', err)
+    throw err
+  }
+}
+
+async function update(update) {
+  const updateToSave = {
+    title: update.title,
+    price: update.price,
+    preview: update.preview,
+    types: update.types,
+    stockQuantity: update.stockQuantity,
+    cover: update.cover,
+  }
+
+  try {
+    const criteria = { _id: ObjectId.createFromHexString(update._id) }
+
+    const collection = await dbService.getCollection('update')
+    await collection.updateOne(criteria, { $set: updateToSave })
+
+    return update
+  } catch (err) {
+    logger.error(`cannot update update ${update._id}`, err)
+    throw err
+  }
+}
+
+async function saveUpdatesOrder(reordered) {
+  try {
+    const collection = await dbService.getCollection('update')
+    const bulkOps = reordered.map((update) => ({
+      updateOne: {
+        filter: { _id: update._id },
+        update: { $set: { position: update.position } },
+      },
+    }))
+
+    await collection.bulkWrite(bulkOps) // Perform the bulk update
+  } catch (err) {
+    console.log(err)
+    throw err
+  }
+}
+
+function _buildCriteria(filterBy) {
+  let criteria
+  //   if (filterBy.isAll) {
+  //     criteria = {}
+  //   } else {
+  //     criteria = {
+  //       txt: { $regex: filterBy.txt, $options: 'i' },
+  //       maxPrice: { $lt: filterBy.maxPrice },
+  //       types: { $all: filterBy.types },
+  //     }
+  //   }
+
+  //   return criteria
+  return {}
+}
+
+function _buildSort(filterBy) {
+  if (filterBy && filterBy.createdAt) {
+    return { createdAt: -1 }
+  }
+  return {} // Default case with no sorting if createdAt is not specified
+}
