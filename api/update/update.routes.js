@@ -2,6 +2,7 @@ import express from 'express'
 
 import { requireAuth } from '../../middlewares/requireAuth.middleware.js'
 import { log } from '../../middlewares/logger.middleware.js'
+import { requireAdmin } from '../../middlewares/requireAuth.middleware.js'
 
 import {
   getUpdates,
@@ -18,11 +19,11 @@ const router = express.Router()
 // router.use(requireAuth)
 
 router.get('/', log, getUpdates)
-router.put('/reorder', log, reorderUpdates)
+router.put('/reorder', log, requireAdmin, reorderUpdates)
 router.get('/:id', log, getUpdateById)
-router.post('/', log, requireAuth, addUpdate)
-router.put('/:id', requireAuth, updateUpdate)
-router.delete('/:id', requireAuth, removeUpdate)
+router.post('/', log, requireAdmin, addUpdate)
+router.put('/:id', requireAdmin, updateUpdate)
+router.delete('/:id', requireAdmin, removeUpdate)
 // router.delete('/:id', requireAuth, requireAdmin, removeUpdate)
 
 export const updateRoutes = router
