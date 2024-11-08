@@ -2,6 +2,7 @@ import express from 'express'
 
 import { requireAuth } from '../../middlewares/requireAuth.middleware.js'
 import { log } from '../../middlewares/logger.middleware.js'
+import { requireAdmin } from '../../middlewares/requireAuth.middleware.js'
 
 import {
   getItems,
@@ -20,9 +21,9 @@ const router = express.Router()
 router.get('/', log, getItems)
 router.get('/cart', log, getCartItems)
 router.get('/:id', log, getItemById)
-router.post('/', log, requireAuth, addItem)
-router.put('/:id', requireAuth, updateItem)
-router.delete('/:id', requireAuth, removeItem)
+router.post('/', log, requireAdmin, addItem)
+router.put('/:id', requireAdmin, updateItem)
+router.delete('/:id', requireAdmin, removeItem)
 // router.delete('/:id', requireAuth, requireAdmin, removeItem)
 
 export const itemRoutes = router

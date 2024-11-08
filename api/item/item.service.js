@@ -17,9 +17,13 @@ export const itemService = {
 
 async function query(filterBy = { txt: '' }) {
   try {
+    console.log(filterBy)
+
     const criteria = _buildCriteria(filterBy)
     const sort = _buildSort(filterBy)
 
+    console.log(criteria)
+    console.log(sort)
     const collection = await dbService.getCollection('item')
     var itemCursor = await collection.find(criteria, { sort })
 
@@ -27,7 +31,8 @@ async function query(filterBy = { txt: '' }) {
       itemCursor.skip(filterBy.pageIdx * PAGE_SIZE).limit(PAGE_SIZE)
     }
 
-    const items = itemCursor.toArray()
+    const items = await itemCursor.toArray()
+
     return items
   } catch (err) {
     logger.error('cannot find items', err)
@@ -107,14 +112,22 @@ async function update(item) {
 }
 
 function _buildCriteria(filterBy) {
-  let criteria
-  if (filterBy.isAll) {
-    criteria = {}
-  } else {
-    criteria = {
-      txt: { $regex: filterBy.txt, $options: 'i' },
-      maxPrice: { $lt: filterBy.maxPrice },
-      types: { $all: filterBy.types },
+  let criteria = {}
+
+  if (!filterBy.isAll) {
+    // Text search (uncomment if txt filtering is desired)
+    if (filterBy.txt) {
+      criteria.txt = { $regex: filterBy.txt, $options: 'i' }
+    }
+
+    // Price filter
+    if (filterBy.maxPrice) {
+      criteria.price = { $lt: filterBy.maxPrice }
+    }
+
+    // Types filter
+    if (filterBy.types && filterBy.types.length > 0) {
+      criteria.types = { $all: filterBy.types }
     }
   }
 
@@ -122,5 +135,9 @@ function _buildCriteria(filterBy) {
 }
 
 function _buildSort(filterBy) {
-  return { [filterBy.maxPrice]: filterBy.sortDir }
+  if (filterBy.sortDir) {
+    return { price: filterBy.sortDir }
+  } else {
+    return {}
+  }
 }

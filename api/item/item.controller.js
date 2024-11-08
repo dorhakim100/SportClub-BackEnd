@@ -8,10 +8,11 @@ export async function getItems(req, res) {
       maxPrice: +req.query.maxPrice || '',
       sortDir: req.query.sortDir || '',
       types: req.query.types || [],
-      pageIdx: req.query.pageIdx,
+      pageIdx: +req.query.pageIdx,
       isAll: req.query.isAll || false,
     }
     const items = await itemService.query(filterBy)
+
     res.json(items)
   } catch (err) {
     logger.error('Failed to get items', err)
@@ -71,12 +72,12 @@ export async function addItem(req, res) {
 
 export async function updateItem(req, res) {
   const { loggedinUser, body: item } = req
-  const { _id: userId, isAdmin } = loggedinUser
+  // const { _id: userId, isAdmin } = loggedinUser
 
-  if (!isAdmin && item.owner._id !== userId) {
-    res.status(403).send('Not your item...')
-    return
-  }
+  // if (!isAdmin && item.owner._id !== userId) {
+  //   res.status(403).send('Not your item...')
+  //   return
+  // }
 
   try {
     const updatedItem = await itemService.update(item)
