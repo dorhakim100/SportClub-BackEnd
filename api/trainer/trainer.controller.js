@@ -6,7 +6,7 @@ export async function getTrainers(req, res) {
     const filterBy = {
       types: req.query.types || [],
       pageIdx: req.query.pageIdx,
-      isAll: req.query.isAll || false,
+      isAll: req.query.isAll === 'true' ? true : false,
     }
     const trainers = await trainerService.query(filterBy)
     res.json(trainers)
