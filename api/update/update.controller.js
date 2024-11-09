@@ -3,10 +3,14 @@ import { updateService } from './update.service.js'
 
 export async function getUpdates(req, res) {
   try {
+    console.log('page', req.query.pageIdx)
     const filterBy = {
-      pageIdx: req.query.pageIdx,
-      isAll: req.query.isAll || false,
+      isAll: req.query.isAll === 'true' ? true : false,
     }
+    if (req.query.pageIdx) {
+      filterBy.pageIdx = +req.query.pageIdx
+    }
+    console.log('updatefilter', filterBy)
     const updates = await updateService.query(filterBy)
     res.json(updates)
   } catch (err) {
@@ -30,7 +34,7 @@ export async function addUpdate(req, res) {
   const { loggedinUser, body: update } = req
 
   try {
-    update.owner = loggedinUser
+    // update.owner = loggedinUser
     const addedUpdate = await updateService.add(update)
     res.json(addedUpdate)
   } catch (err) {
@@ -72,11 +76,12 @@ export async function removeUpdate(req, res) {
 // Update the order of updates in the database
 export async function reorderUpdates(req, res) {
   try {
-    const updates = req.body.updates // Expecting an array of updates with position
+    const updates = req.body // Expecting an array of updates with position
 
     // Use a bulk write operation to update multiple items efficiently
-    await updateService.saveUpdatesOrder(updates)
-    res.status(200).json({ message: 'Order saved successfully' })
+    const saved = await updateService.saveUpdatesOrder(updates)
+    // res.status(200).json({ message: 'Order saved successfully' })
+    res.json(saved)
   } catch (err) {
     console.error(err)
     res.status(500).json({ error: 'Failed to save order' })
