@@ -28,7 +28,7 @@ async function query(filterBy = { txt: '' }) {
       messageCursor.skip(filterBy.pageIdx * PAGE_SIZE).limit(PAGE_SIZE)
     }
 
-    const messages = messageCursor.toArray()
+    const messages = await messageCursor.toArray()
     return messages
   } catch (err) {
     logger.error('cannot find messages', err)
@@ -43,7 +43,7 @@ async function queryOpen() {
     const collection = await dbService.getCollection('message')
     var messageCursor = await collection.find(criteria, { sort })
 
-    const messages = messageCursor.toArray()
+    const messages = await messageCursor.toArray()
     return messages.length
   } catch (err) {
     logger.error('cannot find messages', err)
@@ -105,17 +105,17 @@ async function update(message) {
     title: message.title,
     content: message.content,
     phone: message.phone,
-    createdAt: Date.now(),
-    isDone: false,
+    createdAt: message.createdAt,
+    isDone: message.isDone,
   }
 
   try {
     const criteria = { _id: ObjectId.createFromHexString(message._id) }
 
     const collection = await dbService.getCollection('message')
-    await collection.updateOne(criteria, { $set: messageToSave })
+    const saved = await collection.updateOne(criteria, { $set: messageToSave })
 
-    return message
+    return saved
   } catch (err) {
     logger.error(`cannot update message ${message._id}`, err)
     throw err
@@ -125,16 +125,12 @@ async function update(message) {
 function _buildCriteria(filterBy) {
   let criteria = {}
 
-  if (filterBy.onlyOpen) {
-    criteria = {
-      isDone: { $eq: false },
-    }
+  if (filterBy.isAll) {
+    criteria = {}
     return criteria
   }
 
-  if (filterBy.isAll) {
-    criteria = {}
-  } else {
+  if (filterBy.txt) {
     const txtCriteria = { $regex: filterBy.txt, $options: 'i' }
 
     criteria = {
@@ -144,7 +140,12 @@ function _buildCriteria(filterBy) {
         { content: txtCriteria },
         { phone: txtCriteria },
       ],
-      isDone: { $eq: filterBy.onlyDone },
+      //   isDone: { $eq: filterBy.onlyDone },
+    }
+  }
+  if (filterBy.onlyOpen) {
+    criteria.isDone = {
+      $eq: false,
     }
   }
 
@@ -152,5 +153,9 @@ function _buildCriteria(filterBy) {
 }
 
 function _buildSort(filterBy) {
-  return { [filterBy.createdAt]: filterBy.sortDir }
+  if (filterBy.sortDir) {
+    return { createdAt: filterBy.sortDir }
+  } else {
+    return {}
+  }
 }

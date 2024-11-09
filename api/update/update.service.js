@@ -28,8 +28,7 @@ async function query(filterBy = { txt: '' }) {
       updateCursor.skip(filterBy.pageIdx * PAGE_SIZE).limit(PAGE_SIZE)
     }
 
-    var updates = updateCursor.toArray()
-    updates = [...updates].reverse() // getting latest updates logic
+    var updates = await updateCursor.toArray()
 
     return updates
   } catch (err) {
@@ -100,6 +99,24 @@ async function update(update) {
     const criteria = { _id: ObjectId.createFromHexString(update._id) }
 
     const collection = await dbService.getCollection('update')
+
+    var updateCursor = await collection.find({}, {})
+
+    var updates = await updateCursor.toArray()
+
+    await Promise.all(
+      updates.map((update) =>
+        collection.updateOne(
+          { _id: ObjectId.createFromHexString(update._id) },
+          {
+            $set: {
+              position: update.position + 1,
+            },
+          }
+        )
+      )
+    )
+
     await collection.updateOne(criteria, { $set: updateToSave })
 
     return update
@@ -111,15 +128,46 @@ async function update(update) {
 
 async function saveUpdatesOrder(reordered) {
   try {
+    console.log(reordered)
     const collection = await dbService.getCollection('update')
-    const bulkOps = reordered.map((update) => ({
-      updateOne: {
-        filter: { _id: update._id },
-        update: { $set: { position: update.position } },
-      },
-    }))
+    // const bulkOps = reordered.map((update) => ({
+    //   updateOne: {
+    //     filter: { _id: ObjectId.createFromHexString(update._id) },
+    //     update: {
+    //       $set: {
+    //         position: update.position,
+    //         createdAt: update.createdAt || new Date(), // Set `createdAt` if it doesn’t exist
+    //       },
+    //     },
+    //   },
+    // }))
 
-    await collection.bulkWrite(bulkOps) // Perform the bulk update
+    // await collection.bulkWrite(bulkOps) // Perform the bulk update
+    // reordered.map(async (update) => {
+    //   await collection.updateOne(
+    //     { _id: update._id },
+    //     {
+    //       $set: {
+    //         createdAt: update.createdAt,
+    //       },
+    //     }
+    //   )
+    // })
+
+    await Promise.all(
+      reordered.map((update) =>
+        collection.updateOne(
+          { _id: ObjectId.createFromHexString(update._id) },
+          {
+            $set: {
+              position: update.position,
+              createdAt: update.createdAt || new Date(),
+            },
+          }
+        )
+      )
+    )
+    return reordered
   } catch (err) {
     console.log(err)
     throw err
@@ -143,8 +191,8 @@ function _buildCriteria(filterBy) {
 }
 
 function _buildSort(filterBy) {
-  if (filterBy && filterBy.createdAt) {
-    return { createdAt: -1 }
-  }
-  return {} // Default case with no sorting if createdAt is not specified
+  //   if (filterBy && filterBy.createdAt) {
+  //     return { createdAt: -1 }
+  //   }
+  return { position: 1 } // Default case with no sorting if createdAt is not specified
 }

@@ -7,7 +7,7 @@ export async function getMessages(req, res) {
       txt: req.query.txt || '',
       onlyDone: req.query.onlyDone || false,
       sortDir: req.query.sortDir || '',
-      pageIdx: req.query.pageIdx,
+      pageIdx: +req.query.pageIdx,
       isAll: req.query.isAll || false,
     }
     const messages = await messageService.query(filterBy)
@@ -17,7 +17,7 @@ export async function getMessages(req, res) {
     res.status(400).send({ err: 'Failed to get messages' })
   }
 }
-export async function getOpenMessages() {
+export async function getOpenMessages(req, res) {
   try {
     const length = await messageService.queryOpen()
     res.json(length)
@@ -39,10 +39,9 @@ export async function getMessageById(req, res) {
 }
 
 export async function addMessage(req, res) {
-  const { loggedinUser, body: message } = req
+  const { body: message } = req
 
   try {
-    message.owner = loggedinUser
     const addedMessage = await messageService.add(message)
     res.json(addedMessage)
   } catch (err) {
@@ -52,13 +51,13 @@ export async function addMessage(req, res) {
 }
 
 export async function updateMessage(req, res) {
-  const { loggedinUser, body: message } = req
-  const { _id: userId, isAdmin } = loggedinUser
+  const { body: message } = req
+  //   const { _id: userId, isAdmin } = loggedinUser
 
-  if (!isAdmin && message.owner._id !== userId) {
-    res.status(403).send('Not your message...')
-    return
-  }
+  //   if (!isAdmin && message.owner._id !== userId) {
+  //     res.status(403).send('Not your message...')
+  //     return
+  //   }
 
   try {
     const updatedMessage = await messageService.update(message)
