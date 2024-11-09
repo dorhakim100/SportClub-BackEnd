@@ -23,11 +23,11 @@ async function query(filterBy = { txt: '' }) {
     const collection = await dbService.getCollection('trainer')
     var trainerCursor = await collection.find(criteria, { sort })
 
-    if (filterBy.pageIdx !== undefined && !filterBy.isAll) {
-      trainerCursor.skip(filterBy.pageIdx * PAGE_SIZE).limit(PAGE_SIZE)
-    }
+    // if (filterBy.pageIdx !== undefined && !filterBy.isAll) {
+    //   trainerCursor.skip(filterBy.pageIdx * PAGE_SIZE).limit(PAGE_SIZE)
+    // }
 
-    const trainers = trainerCursor.toArray()
+    const trainers = await trainerCursor.toArray()
     return trainers
   } catch (err) {
     logger.error('cannot find trainers', err)
@@ -107,16 +107,23 @@ async function update(trainer) {
 }
 
 function _buildCriteria(filterBy) {
-  let criteria
+  let criteria = {} // Initialize criteria as an empty object
+
   if (filterBy.isAll) {
-    criteria = {}
-  } else {
-    criteria = {
-      types: { $all: filterBy.types },
-    }
+    return criteria // Return empty criteria if 'isAll' is true
+  }
+  console.log(filterBy)
+  if (filterBy.types && filterBy.types.length > 0) {
+    criteria.types = { $in: filterBy.types } // Apply types filter if present
   }
 
-  return criteria
+  // You can add more conditions here for other filter types like range, dates, etc.
+  // For example:
+  // if (filterBy.range) {
+  //   criteria.value = { $gte: filterBy.range.min, $lte: filterBy.range.max };
+  // }
+
+  return criteria // Return the constructed criteria
 }
 
 function _buildSort(filterBy) {

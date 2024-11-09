@@ -38,31 +38,122 @@ async function query(filterBy = { txt: '' }) {
   }
 }
 
+// async function getOccurrences(filter) {
+//   try {
+//     const criteria = _buildCriteria(filter)
+//     const sort = _buildSort(filter)
+
+//     const collection = await dbService.getCollection('class')
+//     var classCursor = await collection.find(criteria, { sort })
+
+//     const classes = await classCursor.toArray()
+
+//     const allOccurrences = []
+//     await Promise.all(
+//       classes.forEach((clas) => {
+//         clas.occurrences.map((occur) => {
+//           if (!occur.isActive) return
+//           occur.title = clas.title
+//           delete occur.time
+
+//           // const trainers = []
+
+//           //   if (trainers.some((trainer) => trainer.id === occur.trainer.id)) return
+
+//           collection.aggregate([
+//             {
+//               $match: {},
+//             },
+//             {
+//               $lookup: {
+//                 from: 'trainer',
+//                 localField: 'occur.trainer.id',
+//                 foreignField: '_id',
+//                 as: 'trainer',
+//               },
+//             },
+//             {
+//               $unwind: '$trainer', // Flatten trainerInfo array to get a single object
+//             },
+//           ])
+
+//           // trainers.push(occur.trainer)
+
+//           allOccurrences.push(occur)
+//         })
+//       })
+//     )
+//     allOccurrences.sort((item1, item2) => {
+//       const from1 = convertToDate(item1.from)
+//       const from2 = convertToDate(item2.from)
+//       return from1 - from2
+//     })
+//     return allOccurrences
+//   } catch (err) {
+//     console.log(err)
+//     throw err
+//   }
+// }
+
+// import { ObjectId } from 'mongodb'
 async function getOccurrences(filter) {
   try {
     const criteria = _buildCriteria(filter)
     const sort = _buildSort(filter)
 
     const collection = await dbService.getCollection('class')
-    var classCursor = await collection.find(criteria, { sort })
-
+    const classCursor = await collection.find(criteria, { sort })
     const classes = await classCursor.toArray()
 
     const allOccurrences = []
+    await Promise.all(
+      classes.map(async (clas) => {
+        // Loop through occurrences for each class
+        for (const occur of clas.occurrences) {
+          if (!occur.isActive) continue // Skip inactive occurrences
+          occur.title = clas.title
+          delete occur.time
+          console.log('Before Aggregation:', occur)
 
-    classes.forEach((clas) => {
-      clas.occurrences.map((occur) => {
-        if (!occur.isActive) return
-        occur.title = clas.title
-        delete occur.time
-        allOccurrences.push(occur)
+          // Convert trainer.id from string to ObjectId
+          const trainerId = new ObjectId(occur.trainer.id) // Use ObjectId constructor
+
+          // Fetch trainer details via aggregation
+          const trainerCollection = await dbService.getCollection('trainer')
+          const trainerData = await trainerCollection
+            .aggregate([
+              {
+                $match: { _id: trainerId }, // Match the trainer by its ID
+              },
+            ])
+            .toArray()
+
+          console.log('Trainer Data:', trainerData)
+
+          if (trainerData.length) {
+            const id = occur.trainer.id
+            occur.trainer = {
+              id,
+              name: trainerData[0].name,
+            }
+          } else {
+            console.log(
+              `No trainer found for occurrence: ${JSON.stringify(occur)}`
+            )
+          }
+
+          allOccurrences.push(occur)
+        }
       })
-    })
+    )
+
+    // Sort occurrences based on the "from" field (convert to Date)
     allOccurrences.sort((item1, item2) => {
       const from1 = convertToDate(item1.from)
       const from2 = convertToDate(item2.from)
       return from1 - from2
     })
+
     return allOccurrences
   } catch (err) {
     console.log(err)
@@ -77,6 +168,43 @@ async function getById(classId) {
     const collection = await dbService.getCollection('class')
     const clas = await collection.findOne(criteria)
 
+    for (const occur of clas.occurrences) {
+      if (!occur.isActive) continue // Skip inactive occurrences
+      occur.title = clas.title
+      delete occur.time
+      console.log('Before Aggregation:', occur)
+
+      // Convert trainer.id from string to ObjectId
+      const trainerId = new ObjectId(occur.trainer.id) // Use ObjectId constructor
+
+      // Fetch trainer details via aggregation
+      const trainerCollection = await dbService.getCollection('trainer')
+      const trainerData = await trainerCollection
+        .aggregate([
+          {
+            $match: { _id: trainerId }, // Match the trainer by its ID
+          },
+        ])
+        .toArray()
+
+      console.log('Trainer Data:', trainerData)
+
+      if (trainerData.length) {
+        const id = occur.trainer.id
+
+        occur.trainer = {
+          ...occur.trainer,
+          name: trainerData[0].name,
+        }
+        console.log('afterChange:', occur.trainer)
+      } else {
+        console.log(`No trainer found for occurrence: ${JSON.stringify(occur)}`)
+      }
+    }
+
+    await collection.updateOne(criteria, {
+      $set: { ...clas, occurrences: clas.occurrences },
+    })
     clas.createdAt = clas._id.getTimestamp()
     return clas
   } catch (err) {
@@ -97,8 +225,8 @@ async function getTrainers(classId) {
     const trainers = []
 
     clas.occurrences.forEach((occur) => {
-      //   if (trainers.some((trainer) => trainer.id === occur.trainer.id)) return
-      console.log(occur.trainer)
+      if (trainers.some((trainer) => trainer.id === occur.trainer.id)) return
+
       trainers.push(occur.trainer)
     })
 
