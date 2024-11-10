@@ -99,7 +99,8 @@ async function update(user) {
     const userToSave = {
       _id: ObjectId.createFromHexString(user._id), // needed for the returnd obj
       fullname: user.fullname,
-      score: user.score,
+      items: user.items,
+      ordersIds: user.ordersIds,
     }
     const collection = await dbService.getCollection('user')
     await collection.updateOne({ _id: userToSave._id }, { $set: userToSave })

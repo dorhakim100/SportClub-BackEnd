@@ -124,11 +124,12 @@ async function update(message) {
 
 function _buildCriteria(filterBy) {
   let criteria = {}
+  console.log(filterBy)
 
-  if (filterBy.isAll) {
-    criteria = {}
-    return criteria
-  }
+  // if (filterBy.isAll) {
+  //   criteria = {}
+  //   return criteria
+  // }
 
   if (filterBy.txt) {
     const txtCriteria = { $regex: filterBy.txt, $options: 'i' }
@@ -143,7 +144,7 @@ function _buildCriteria(filterBy) {
       //   isDone: { $eq: filterBy.onlyDone },
     }
   }
-  if (filterBy.onlyOpen) {
+  if (filterBy.onlyDone) {
     criteria.isDone = {
       $eq: false,
     }
@@ -154,8 +155,9 @@ function _buildCriteria(filterBy) {
 
 function _buildSort(filterBy) {
   if (filterBy.sortDir) {
-    return { createdAt: filterBy.sortDir }
+    console.log(filterBy.sortDir)
+    return { createdAt: -filterBy.sortDir }
   } else {
-    return {}
+    return { createdAt: -1 }
   }
 }

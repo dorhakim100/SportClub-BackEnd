@@ -109,17 +109,13 @@ async function update(coupon) {
 
 async function getDiscount(couponCode) {
   try {
-    const criteria = _buildCriteria({ allActive: true })
-    const sort = _buildSort()
+    const criteria = _buildCriteria({ code: couponCode })
+    // const sort = _buildSort()
 
     const collection = await dbService.getCollection('coupon')
-    var couponCursor = await collection.find(criteria, { sort })
+    const coupon = await collection.findOne(criteria)
 
-    const coupons = couponCursor.toArray()
-
-    if (coupons.some((coupon) => coupon.code === couponCode)) {
-      const coupon = coupons.find((coupon) => coupon.code === couponCode)
-
+    if (coupon) {
       return { amount: coupon.amount, type: coupon.type, items: coupon.items }
     } else {
       throw new Error(`Couldn't find coupon`)
@@ -131,14 +127,16 @@ async function getDiscount(couponCode) {
 }
 
 function _buildCriteria(filterBy) {
-  let criteria
+  let criteria = {}
   if (filterBy.isAll) {
     criteria = {}
-  } else {
-    criteria = {
-      txt: { $regex: filterBy.txt, $options: 'i' },
-      allActive: { $eq: filterBy.allActive },
-    }
+  }
+  if (filterBy.allActive) {
+    criteria.isActive = { $eq: true }
+  }
+  if (filterBy.code) {
+    console.log(filterBy)
+    criteria.code = filterBy.code
   }
 
   return criteria

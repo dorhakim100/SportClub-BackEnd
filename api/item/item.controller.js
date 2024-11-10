@@ -22,25 +22,31 @@ export async function getItems(req, res) {
 
 export async function getCartItems(req, res) {
   try {
-    const cart = req.query
-    let items = await itemService.query({ isAll: true })
-    const itemsToReturn = []
-    let idx = 0
-    cart.map((item) => {
-      const currItem = items.find((itemToFind) => itemToFind._id === item.id)
-      if (currItem) {
-        itemsToReturn[idx] = {
-          id: currItem._id,
-          cover: currItem.cover,
-          price: currItem.price,
-          title: currItem.title,
-          quantity: item.quantity,
-        }
-        idx++
-      }
-    })
+    const cart = Object.values(req.query)
+    const cartToReturn = await itemService.queryCart(cart)
 
-    res.json(itemsToReturn)
+    // let items = await itemService.query({ isAll: true })
+
+    // const itemsToReturn = []
+
+    // cart.map((item, index) => {
+    //   const itemId = ObjectId.createFromHexString(item.id)
+
+    //   const currItem = items.find((itemToFind) => itemToFind._id === itemId)
+    //   if (currItem) {
+    //     itemsToReturn[index] = {
+    //       id: currItem._id,
+    //       cover: currItem.cover,
+    //       price: currItem.price,
+    //       title: currItem.title,
+    //       quantity: item.quantity,
+    //     }
+    //     // index++
+    //   }
+    // })
+    // console.log(itemsToReturn)
+
+    res.json(cartToReturn)
   } catch (err) {
     console.log(err)
   }

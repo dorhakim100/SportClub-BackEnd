@@ -5,11 +5,12 @@ export async function getMessages(req, res) {
   try {
     const filterBy = {
       txt: req.query.txt || '',
-      onlyDone: req.query.onlyDone || false,
+      onlyDone: req.query.onlyDone === 'true' ? true : false,
       sortDir: req.query.sortDir || '',
       pageIdx: +req.query.pageIdx,
-      isAll: req.query.isAll || false,
+      isAll: req.query.isAll === 'true' ? true : false,
     }
+    console.log(filterBy)
     const messages = await messageService.query(filterBy)
     res.json(messages)
   } catch (err) {

@@ -19,7 +19,8 @@ export async function getCoupons(req, res) {
 
 export async function checkDiscount(req, res) {
   try {
-    const couponCode = req.query
+    const couponCode = req.query.code
+    console.log('code', couponCode)
 
     const result = await couponService.getDiscount(couponCode)
 
