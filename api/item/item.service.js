@@ -13,6 +13,7 @@ export const itemService = {
   getById,
   add,
   update,
+  queryCart,
 }
 
 async function query(filterBy = { txt: '' }) {
@@ -34,6 +35,40 @@ async function query(filterBy = { txt: '' }) {
     const items = await itemCursor.toArray()
 
     return items
+  } catch (err) {
+    logger.error('cannot find items', err)
+    throw err
+  }
+}
+
+async function queryCart(cart) {
+  try {
+    const collection = await dbService.getCollection('item')
+    console.log('cart:', cart)
+    const itemsToReturn = await Promise.all(
+      cart.map(async (item) => {
+        const criteria = { _id: ObjectId.createFromHexString(item.id) }
+        const currItem = await collection.findOne(criteria)
+        console.log('currItem:', currItem)
+        if (currItem) {
+          return {
+            id: currItem._id,
+            cover: currItem.cover,
+            price: currItem.price,
+            title: currItem.title,
+            quantity: item.quantity,
+          }
+        } else {
+          return null
+        }
+      })
+    )
+
+    // Filter out any null entries in case some items are not found
+    const filteredItemsToReturn = itemsToReturn.filter(Boolean)
+
+    console.log(filteredItemsToReturn)
+    return filteredItemsToReturn
   } catch (err) {
     logger.error('cannot find items', err)
     throw err
