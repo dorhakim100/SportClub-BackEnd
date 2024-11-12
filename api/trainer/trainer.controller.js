@@ -7,6 +7,7 @@ export async function getTrainers(req, res) {
       types: req.query.types || [],
       pageIdx: req.query.pageIdx,
       isAll: req.query.isAll === 'true' ? true : false,
+      isRandom: req.query.isRandom === 'true' ? true : false,
     }
     const trainers = await trainerService.query(filterBy)
     res.json(trainers)

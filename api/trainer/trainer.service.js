@@ -21,12 +21,18 @@ async function query(filterBy = { txt: '' }) {
     const sort = _buildSort(filterBy)
 
     const collection = await dbService.getCollection('trainer')
-    var trainerCursor = await collection.find(criteria, { sort })
-
-    // if (filterBy.pageIdx !== undefined && !filterBy.isAll) {
-    //   trainerCursor.skip(filterBy.pageIdx * PAGE_SIZE).limit(PAGE_SIZE)
-    // }
-
+    var trainerCursor
+    if (filterBy.isRandom) {
+      const limit = 6
+      console.log('limit', limit)
+      trainerCursor = await collection.aggregate([{ $sample: { size: limit } }])
+    } else {
+      trainerCursor = await collection.find(criteria, { sort })
+      console.log(filterBy)
+      if (filterBy.pageIdx !== undefined && !filterBy.isAll) {
+        trainerCursor.skip(filterBy.pageIdx * PAGE_SIZE).limit(PAGE_SIZE)
+      }
+    }
     const trainers = await trainerCursor.toArray()
     return trainers
   } catch (err) {
@@ -107,21 +113,19 @@ async function update(trainer) {
 }
 
 function _buildCriteria(filterBy) {
-  let criteria = {} // Initialize criteria as an empty object
-
   if (filterBy.isAll) {
-    return criteria // Return empty criteria if 'isAll' is true
-  }
-  console.log(filterBy)
-  if (filterBy.types && filterBy.types.length > 0) {
-    criteria.types = { $in: filterBy.types } // Apply types filter if present
+    return {} // Return empty criteria if 'isAll' is true
   }
 
-  // You can add more conditions here for other filter types like range, dates, etc.
-  // For example:
-  // if (filterBy.range) {
-  //   criteria.value = { $gte: filterBy.range.min, $lte: filterBy.range.max };
-  // }
+  // If `isRandom` is true, use an aggregation pipeline with `$sample`
+
+  // Otherwise, build a standard criteria object
+  const criteria = {}
+
+  // Apply types filter if present
+  if (filterBy.types && filterBy.types.length > 0) {
+    criteria.types = { $in: filterBy.types }
+  }
 
   return criteria // Return the constructed criteria
 }

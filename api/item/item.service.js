@@ -162,7 +162,7 @@ function _buildCriteria(filterBy) {
 
     // Types filter
     if (filterBy.types && filterBy.types.length > 0) {
-      criteria.types = { $all: filterBy.types }
+      criteria.types = { $in: filterBy.types }
     }
   }
 
