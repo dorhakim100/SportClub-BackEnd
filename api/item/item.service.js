@@ -49,7 +49,7 @@ async function queryCart(cart) {
       cart.map(async (item) => {
         const criteria = { _id: ObjectId.createFromHexString(item.id) }
         const currItem = await collection.findOne(criteria)
-        console.log('currItem:', currItem)
+
         if (currItem) {
           return {
             id: currItem._id,
