@@ -43,31 +43,37 @@ async function query(filterBy = { txt: '' }) {
 
 async function queryCart(cart) {
   try {
-    const collection = await dbService.getCollection('item')
     console.log('cart:', cart)
-    const itemsToReturn = await Promise.all(
-      cart.map(async (item) => {
-        const criteria = { _id: ObjectId.createFromHexString(item.id) }
-        const currItem = await collection.findOne(criteria)
+    const collection = await dbService.getCollection('item')
+    const itemsIds = cart.map((item) => ObjectId.createFromHexString(item.id))
 
-        if (currItem) {
-          return {
-            id: currItem._id,
-            cover: currItem.cover,
-            price: currItem.price,
-            title: currItem.title,
-            quantity: item.quantity,
-          }
-        } else {
-          return null
-        }
-      })
-    )
+    const itemsFromCollection = await collection
+      .aggregate([
+        {
+          $match: { _id: { $in: itemsIds } },
+        },
+        {
+          $project: {
+            id: '$_id',
+            _id: 0,
+            cover: 1,
+            price: 1,
+            title: 1,
+          },
+        },
+      ])
+      .toArray()
+
+    const itemsToReturn = cart.map((item) => {
+      const currItem = itemsFromCollection.find(
+        (itemToFind) => itemToFind.id.toString() === item.id
+      )
+      return currItem ? { ...currItem, quantity: item.quantity } : null
+    })
 
     // Filter out any null entries in case some items are not found
     const filteredItemsToReturn = itemsToReturn.filter(Boolean)
 
-    console.log(filteredItemsToReturn)
     return filteredItemsToReturn
   } catch (err) {
     logger.error('cannot find items', err)
