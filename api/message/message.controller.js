@@ -80,3 +80,16 @@ export async function removeMessage(req, res) {
     res.status(400).send({ err: 'Failed to remove message' })
   }
 }
+
+export async function removeMessages(req, res) {
+  try {
+    const messagesIds = req.body.data
+    console.log(messagesIds)
+    const removedIds = await messageService.removeBulk(messagesIds)
+
+    res.send(removedIds)
+  } catch (err) {
+    logger.error('Failed to remove messages', err)
+    res.status(400).send({ err: 'Failed to remove messages' })
+  }
+}

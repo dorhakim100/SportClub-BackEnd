@@ -14,6 +14,7 @@ export const messageService = {
   add,
   update,
   queryOpen,
+  removeBulk,
 }
 
 async function query(filterBy = { txt: '' }) {
@@ -83,6 +84,29 @@ async function remove(messageId) {
     return messageId
   } catch (err) {
     logger.error(`cannot remove message ${messageId}`, err)
+    throw err
+  }
+}
+
+async function removeBulk(ids) {
+  try {
+    // Convert the array of IDs to ObjectId
+    const objectIds = ids.map((id) => ObjectId.createFromHexString(id))
+    console.log(objectIds)
+    // Create the query criteria
+    const criteria = { _id: { $in: objectIds } }
+
+    // Get the collection
+    const collection = await dbService.getCollection('message')
+
+    // Use deleteMany for bulk deletion
+    const res = await collection.deleteMany(criteria)
+
+    if (res.deletedCount === 0) throw new Error('No messages deleted')
+
+    return ids // Return the deleted IDs
+  } catch (err) {
+    logger.error(`cannot remove messages ${ids}`, err)
     throw err
   }
 }
