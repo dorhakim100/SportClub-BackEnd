@@ -13,19 +13,29 @@ export const authService = {
   validateToken,
 }
 
-async function login(emailOrUsername, password) {
+async function login(emailOrUsername, password, isRemembered, loginToken) {
   try {
     logger.debug(
       `auth.service - login with emailOrUsername: ${emailOrUsername}`
     )
 
-    const user = await userService.getByUsername(emailOrUsername)
+    if (isRemembered && loginToken) {
+      const loggedinUser = validateToken(loginToken)
+      if (!loggedinUser) new Error('Invalid token')
+      return loggedinUser
+    }
+
+    let user = await userService.getByUsername(emailOrUsername)
 
     if (!user) return new Error('Invalid email or username')
 
     // TODO: un-comment for real login
-    const match = await bcrypt.compare(password, user.password)
-    if (!match) return new Error('Invalid password')
+    // console.log('cookies', req.cookies.loginToken)
+
+    if (!isRemembered) {
+      const match = await bcrypt.compare(password, user.password)
+      if (!match) return new Error('Invalid password')
+    }
 
     delete user.password
     user._id = user._id.toString()
@@ -77,8 +87,10 @@ function getLoginToken(user) {
   const userInfo = {
     _id: user._id,
     fullname: user.fullname,
-    score: user.score,
-    isAdmin: user.isAdmin,
+    isAdmin: user.isAdmin || false,
+    ordersIds: user.ordersIds,
+    items: user.items,
+    email: user.email,
   }
   return cryptr.encrypt(JSON.stringify(userInfo))
 }
