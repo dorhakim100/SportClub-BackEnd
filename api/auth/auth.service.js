@@ -29,9 +29,6 @@ async function login(emailOrUsername, password, isRemembered, loginToken) {
 
     if (!user) return new Error('Invalid email or username')
 
-    // TODO: un-comment for real login
-    // console.log('cookies', req.cookies.loginToken)
-
     if (!isRemembered) {
       const match = await bcrypt.compare(password, user.password)
       if (!match) return new Error('Invalid password')

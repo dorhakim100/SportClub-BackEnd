@@ -10,7 +10,7 @@ export async function getMessages(req, res) {
       pageIdx: +req.query.pageIdx,
       isAll: req.query.isAll === 'true' ? true : false,
     }
-    console.log(filterBy)
+
     const messages = await messageService.query(filterBy)
     res.json(messages)
   } catch (err) {
@@ -84,7 +84,7 @@ export async function removeMessage(req, res) {
 export async function removeMessages(req, res) {
   try {
     const messagesIds = req.body.data
-    console.log(messagesIds)
+
     const removedIds = await messageService.removeBulk(messagesIds)
 
     res.send(removedIds)

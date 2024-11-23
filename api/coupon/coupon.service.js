@@ -135,7 +135,6 @@ function _buildCriteria(filterBy) {
     criteria.isActive = { $eq: true }
   }
   if (filterBy.code) {
-    console.log(filterBy)
     criteria.code = filterBy.code
   }
 

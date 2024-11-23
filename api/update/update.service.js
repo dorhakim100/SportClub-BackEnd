@@ -128,7 +128,6 @@ async function update(update) {
 
 async function saveUpdatesOrder(reordered) {
   try {
-    console.log(reordered)
     const collection = await dbService.getCollection('update')
     // const bulkOps = reordered.map((update) => ({
     //   updateOne: {

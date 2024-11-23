@@ -29,7 +29,7 @@ export function setupSocketAPI(http) {
       logger.info(
         `New chat msg from socket [id: ${socket.id}], emitting to topic ${socket.myTopic}`
       )
-      console.log(msg)
+
       // emits to all sockets:
       gIo.emit('add-msg', msg)
       // emits only to sockets in the same room

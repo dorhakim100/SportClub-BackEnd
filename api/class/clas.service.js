@@ -113,7 +113,6 @@ async function getOccurrences(filter) {
           if (!occur.isActive) continue // Skip inactive occurrences
           occur.title = clas.title
           delete occur.time
-          console.log('Before Aggregation:', occur)
 
           // Convert trainer.id from string to ObjectId
           const trainerId = new ObjectId(occur.trainer.id) // Use ObjectId constructor
@@ -127,8 +126,6 @@ async function getOccurrences(filter) {
               },
             ])
             .toArray()
-
-          console.log('Trainer Data:', trainerData)
 
           if (trainerData.length) {
             const id = occur.trainer.id
@@ -215,12 +212,10 @@ async function getById(classId) {
 
 async function getTrainers(classId) {
   try {
-    console.log(classId)
     const criteria = { _id: ObjectId.createFromHexString(classId) }
 
     const collection = await dbService.getCollection('class')
     const clas = await collection.findOne(criteria)
-    console.log(clas)
 
     const trainers = []
 

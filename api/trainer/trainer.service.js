@@ -24,13 +24,14 @@ async function query(filterBy = { txt: '' }) {
     var trainerCursor
     if (filterBy.isRandom) {
       const limit = 6
-      console.log('limit', limit)
+
       trainerCursor = await collection.aggregate([{ $sample: { size: limit } }])
     } else {
       trainerCursor = await collection.find(criteria, { sort })
-      console.log(filterBy)
+
       if (filterBy.pageIdx !== undefined && !filterBy.isAll) {
         trainerCursor.skip(filterBy.pageIdx * PAGE_SIZE).limit(PAGE_SIZE)
+        // trainerCursor.limit(filterBy.pageIdx * PAGE_SIZE)
       }
     }
     const trainers = await trainerCursor.toArray()
