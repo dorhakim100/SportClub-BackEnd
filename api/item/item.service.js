@@ -18,13 +18,9 @@ export const itemService = {
 
 async function query(filterBy = { txt: '' }) {
   try {
-    console.log(filterBy)
-
     const criteria = _buildCriteria(filterBy)
     const sort = _buildSort(filterBy)
 
-    console.log(criteria)
-    console.log(sort)
     const collection = await dbService.getCollection('item')
     var itemCursor = await collection.find(criteria, { sort })
 
@@ -43,7 +39,6 @@ async function query(filterBy = { txt: '' }) {
 
 async function queryCart(cart) {
   try {
-    console.log('cart:', cart)
     const collection = await dbService.getCollection('item')
     const itemsIds = cart.map((item) => ObjectId.createFromHexString(item.id))
 

@@ -3,14 +3,13 @@ import { updateService } from './update.service.js'
 
 export async function getUpdates(req, res) {
   try {
-    console.log('page', req.query.pageIdx)
     const filterBy = {
       isAll: req.query.isAll === 'true' ? true : false,
     }
     if (req.query.pageIdx) {
       filterBy.pageIdx = +req.query.pageIdx
     }
-    console.log('updatefilter', filterBy)
+
     const updates = await updateService.query(filterBy)
     res.json(updates)
   } catch (err) {

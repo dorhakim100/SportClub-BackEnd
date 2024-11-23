@@ -11,7 +11,7 @@ export async function login(req, res) {
       isRemembered,
       req.cookies.loginToken
     )
-    console.log('user:', user)
+
     const loginToken = authService.getLoginToken(user)
 
     logger.info('User login: ', user)

@@ -92,7 +92,7 @@ async function removeBulk(ids) {
   try {
     // Convert the array of IDs to ObjectId
     const objectIds = ids.map((id) => ObjectId.createFromHexString(id))
-    console.log(objectIds)
+
     // Create the query criteria
     const criteria = { _id: { $in: objectIds } }
 
@@ -148,12 +148,6 @@ async function update(message) {
 
 function _buildCriteria(filterBy) {
   let criteria = {}
-  console.log(filterBy)
-
-  // if (filterBy.isAll) {
-  //   criteria = {}
-  //   return criteria
-  // }
 
   if (filterBy.txt) {
     const txtCriteria = { $regex: filterBy.txt, $options: 'i' }
@@ -165,7 +159,6 @@ function _buildCriteria(filterBy) {
         { content: txtCriteria },
         { phone: txtCriteria },
       ],
-      //   isDone: { $eq: filterBy.onlyDone },
     }
   }
   if (filterBy.onlyDone) {
@@ -179,7 +172,6 @@ function _buildCriteria(filterBy) {
 
 function _buildSort(filterBy) {
   if (filterBy.sortDir) {
-    console.log(filterBy.sortDir)
     return { createdAt: -filterBy.sortDir }
   } else {
     return { createdAt: -1 }
