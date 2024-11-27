@@ -12,6 +12,7 @@ import { couponRoutes } from './api/coupon/coupon.routes.js'
 import { messageRoutes } from './api/message/message.routes.js'
 import { trainerRoutes } from './api/trainer/trainer.routes.js'
 import { updateRoutes } from './api/update/update.routes.js'
+import { paymentRoutes } from './api/payment/payment.routes.js'
 import { setupSocketAPI } from './services/socket.service.js'
 
 import { setupAsyncLocalStorage } from './middlewares/setupAls.middleware.js'
@@ -47,6 +48,7 @@ app.use('/api/coupon', couponRoutes)
 app.use('/api/message', messageRoutes)
 app.use('/api/trainer', trainerRoutes)
 app.use('/api/update', updateRoutes)
+app.use('/api/payment', paymentRoutes)
 
 setupSocketAPI(server)
 
