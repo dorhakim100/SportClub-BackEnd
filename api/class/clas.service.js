@@ -98,7 +98,7 @@ async function query(filterBy = { txt: '' }) {
 // import { ObjectId } from 'mongodb'
 async function getOccurrences(filter) {
   try {
-    const criteria = _buildCriteria(filter)
+    const criteria = _buildCriteria()
     const sort = _buildSort(filter)
 
     const collection = await dbService.getCollection('class')
@@ -111,6 +111,8 @@ async function getOccurrences(filter) {
         // Loop through occurrences for each class
         for (const occur of clas.occurrences) {
           if (!occur.isActive) continue // Skip inactive occurrences
+          if (filter.day && occur.day !== filter.day) continue
+
           occur.title = clas.title
           delete occur.time
 
@@ -289,6 +291,8 @@ async function update(clas) {
 }
 
 function _buildCriteria(filterBy) {
+  const criteria = {}
+
   //   const criteria = {
   //     txt: { $regex: filterBy.txt, $options: 'i' },
   //     maxPrice: { $lt: filterBy.maxPrice },
@@ -296,7 +300,7 @@ function _buildCriteria(filterBy) {
   //   }
 
   //   return criteria
-  return {}
+  return criteria
 }
 
 function _buildSort(filterBy) {
