@@ -20,7 +20,16 @@ export async function getTrainers(req, res) {
 export async function getTrainerById(req, res) {
   try {
     const trainerId = req.params.id
-    const trainer = await trainerService.getById(trainerId)
+
+    const filterBy = {
+      types: req.query.types || [],
+      pageIdx: req.query.pageIdx,
+      isAll: false,
+      isRandom: false,
+      isSkipPage: true,
+    }
+
+    const trainer = await trainerService.getById(trainerId, filterBy)
     res.json(trainer)
   } catch (err) {
     logger.error('Failed to get trainer', err)
