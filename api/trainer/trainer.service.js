@@ -29,12 +29,17 @@ async function query(filterBy = { txt: '' }) {
     } else {
       trainerCursor = await collection.find(criteria, { sort })
 
-      if (filterBy.pageIdx !== undefined && !filterBy.isAll) {
+      if (
+        !filterBy.isSkipPage &&
+        filterBy.pageIdx !== undefined &&
+        !filterBy.isAll
+      ) {
         trainerCursor.skip(filterBy.pageIdx * PAGE_SIZE).limit(PAGE_SIZE)
         // trainerCursor.limit(filterBy.pageIdx * PAGE_SIZE)
       }
     }
     const trainers = await trainerCursor.toArray()
+
     return trainers
   } catch (err) {
     logger.error('cannot find trainers', err)
@@ -42,15 +47,15 @@ async function query(filterBy = { txt: '' }) {
   }
 }
 
-async function getById(trainerId) {
+async function getById(trainerId, filter) {
   try {
     const criteria = { _id: ObjectId.createFromHexString(trainerId) }
 
     const collection = await dbService.getCollection('trainer')
     const trainer = await collection.findOne(criteria)
-
     trainer.createdAt = trainer._id.getTimestamp()
-    return trainer
+    const modified = await _setNextPrevItemId(trainer, filter)
+    return modified
   } catch (err) {
     logger.error(`while finding trainer ${trainerId}`, err)
     throw err
@@ -134,4 +139,50 @@ function _buildCriteria(filterBy) {
 function _buildSort(filterBy) {
   //   return { [filterBy.maxPrice]: filterBy.sortDir }
   return {}
+}
+
+// function _setNextPrevItemId(items) {
+//   const itemsToReturn = items.map((item) => {
+//     const itemId = item._id
+//     const nextItem = items[itemId + 1] ? items[itemId + 1] : items[0]
+//     const prevItem = items[itemId - 1]
+//       ? items[itemId - 1]
+//       : items[items.length - 1]
+//     item.prevNext = {
+//       next: nextItem._id,
+//       prev: prevItem._id,
+//     }
+
+//     return item
+//   })
+//   return itemsToReturn
+// }
+
+async function _setNextPrevItemId(item, filter) {
+  try {
+    console.log('trainerFilter:', filter)
+    const items = await query(filter)
+
+    if (!items.length) {
+      throw new Error('No items found for the given filter.')
+    }
+    const itemIdx = items.findIndex(
+      (currItem) => currItem._id.toHexString() === item._id.toHexString()
+    )
+
+    const nextItem = items[itemIdx + 1] ? items[itemIdx + 1] : items[0]
+    const prevItem = items[itemIdx - 1]
+      ? items[itemIdx - 1]
+      : items[items.length - 1]
+
+    item.prevNext = {
+      next: nextItem._id,
+      prev: prevItem._id,
+    }
+
+    return item
+  } catch (err) {
+    logger.error(`cannot load item ${item._id}`, err)
+    throw err
+  }
 }
