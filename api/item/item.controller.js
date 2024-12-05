@@ -55,7 +55,13 @@ export async function getCartItems(req, res) {
 export async function getItemById(req, res) {
   try {
     const itemId = req.params.id
-    const item = await itemService.getById(itemId)
+    const filterBy = {
+      pageIdx: req.query.pageIdx,
+      isSkipPage: true,
+      types: req.query.types,
+      sortDir: req.query.sortDir,
+    }
+    const item = await itemService.getById(itemId, filterBy)
     res.json(item)
   } catch (err) {
     logger.error('Failed to get item', err)
