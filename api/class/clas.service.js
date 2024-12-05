@@ -26,7 +26,7 @@ async function query(filterBy = { txt: '' }) {
     const collection = await dbService.getCollection('class')
     var classCursor = await collection.find(criteria, { sort })
 
-    if (filterBy.pageIdx !== undefined) {
+    if (!filterBy.isSkipPage && filterBy.pageIdx !== undefined) {
       classCursor.skip(filterBy.pageIdx * PAGE_SIZE).limit(PAGE_SIZE)
     }
 
@@ -160,7 +160,7 @@ async function getOccurrences(filter) {
   }
 }
 
-async function getById(classId) {
+async function getById(classId, filter) {
   try {
     const criteria = { _id: ObjectId.createFromHexString(classId) }
 
@@ -205,7 +205,8 @@ async function getById(classId) {
       $set: { ...clas, occurrences: clas.occurrences },
     })
     clas.createdAt = clas._id.getTimestamp()
-    return clas
+    const modified = await _setNextPrevItemId(clas, filter)
+    return modified
   } catch (err) {
     logger.error(`while finding class ${classId}`, err)
     throw err
@@ -306,4 +307,32 @@ function _buildCriteria(filterBy) {
 function _buildSort(filterBy) {
   //   return { [filterBy.maxPrice]: filterBy.sortDir }
   return {}
+}
+
+async function _setNextPrevItemId(item, filter) {
+  try {
+    const items = await query(filter)
+
+    if (!items.length) {
+      throw new Error('No items found for the given filter.')
+    }
+    const itemIdx = items.findIndex(
+      (currItem) => currItem._id.toHexString() === item._id.toHexString()
+    )
+
+    const nextItem = items[itemIdx + 1] ? items[itemIdx + 1] : items[0]
+    const prevItem = items[itemIdx - 1]
+      ? items[itemIdx - 1]
+      : items[items.length - 1]
+
+    item.prevNext = {
+      next: nextItem._id,
+      prev: prevItem._id,
+    }
+
+    return item
+  } catch (err) {
+    logger.error(`cannot load item ${item._id}`, err)
+    throw err
+  }
 }

@@ -160,7 +160,6 @@ function _buildSort(filterBy) {
 
 async function _setNextPrevItemId(item, filter) {
   try {
-    console.log('trainerFilter:', filter)
     const items = await query(filter)
 
     if (!items.length) {

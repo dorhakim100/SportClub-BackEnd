@@ -33,7 +33,12 @@ export async function getClassById(req, res) {
   try {
     const classId = req.params.id
 
-    const clas = await classService.getById(classId)
+    const filterBy = {
+      pageIdx: req.query.pageIdx,
+      isSkipPage: true,
+    }
+
+    const clas = await classService.getById(classId, filterBy)
     res.json(clas)
   } catch (err) {
     logger.error('Failed to get clas', err)
