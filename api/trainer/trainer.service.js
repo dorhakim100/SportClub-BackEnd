@@ -6,7 +6,8 @@ import { dbService } from '../../services/db.service.js'
 import { asyncLocalStorage } from '../../services/als.service.js'
 
 const PAGE_SIZE = 6
-
+const DEFAULT_IMG =
+  'https://res.cloudinary.com/dnxi70mfs/image/upload/v1730047839/blank-profile-picture-973460_1280_jidp6j.webp'
 export const trainerService = {
   remove,
   query,
@@ -18,27 +19,37 @@ export const trainerService = {
 async function query(filterBy = { txt: '' }) {
   try {
     const criteria = _buildCriteria(filterBy)
-    const sort = _buildSort(filterBy)
-
     const collection = await dbService.getCollection('trainer')
-    var trainerCursor
-    if (filterBy.isRandom) {
-      const limit = 6
+    const limit = PAGE_SIZE
 
-      trainerCursor = await collection.aggregate([{ $sample: { size: limit } }])
-    } else {
-      trainerCursor = await collection.find(criteria, { sort })
+    const aggregationPipeline = [
+      { $match: criteria }, // Apply filter criteria
+      {
+        $addFields: {
+          isDefaultImg: { $eq: ['$img', DEFAULT_IMG] }, // Identify default images
+        },
+      },
+      { $sort: { isDefaultImg: 1, name: 1 } }, // Sort by `isDefaultImg`, then by `name`
+    ]
 
-      if (
-        !filterBy.isSkipPage &&
-        filterBy.pageIdx !== undefined &&
-        !filterBy.isAll
-      ) {
-        trainerCursor.skip(filterBy.pageIdx * PAGE_SIZE).limit(PAGE_SIZE)
-        // trainerCursor.limit(filterBy.pageIdx * PAGE_SIZE)
-      }
+    if (
+      !filterBy.isRandom &&
+      !filterBy.isSkipPage &&
+      filterBy.pageIdx !== undefined &&
+      !filterBy.isAll
+    ) {
+      const skip = filterBy.pageIdx * PAGE_SIZE
+
+      aggregationPipeline.push({ $skip: skip })
+      aggregationPipeline.push({ $limit: limit })
+    } else if (filterBy.isRandom) {
+      aggregationPipeline.push({
+        $match: { img: { $ne: DEFAULT_IMG } },
+      })
+      aggregationPipeline.push({ $sample: { size: limit } })
     }
-    const trainers = await trainerCursor.toArray()
+
+    const trainers = await collection.aggregate(aggregationPipeline).toArray()
 
     return trainers
   } catch (err) {
