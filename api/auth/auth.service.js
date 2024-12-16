@@ -13,8 +13,36 @@ export const authService = {
   validateToken,
 }
 
-async function login(emailOrUsername, password, isRemembered, loginToken) {
+const SERVICE = 'service.kfar@gmail.com'
+const MANAGER = 'sportclub.kfar@gmail.com'
+
+async function login(
+  emailOrUsername,
+  password,
+  isRemembered,
+  loginToken,
+  isGoogle,
+  fullname
+) {
   try {
+    if (isGoogle) {
+      const isGoogleUser = await userService.getByUsername(emailOrUsername)
+      if (isGoogleUser) {
+        delete isGoogleUser.password
+        isGoogleUser._id = isGoogleUser._id.toString()
+        return isGoogleUser
+      } else {
+        const isAdmin = emailOrUsername === (SERVICE || MANAGER) ? true : false
+        return userService.add({
+          username: emailOrUsername,
+          fullname: fullname,
+          isAdmin: isAdmin,
+          ordersIds: [],
+          items: [],
+          email: emailOrUsername,
+        })
+      }
+    }
     logger.debug(
       `auth.service - login with emailOrUsername: ${emailOrUsername}`
     )
