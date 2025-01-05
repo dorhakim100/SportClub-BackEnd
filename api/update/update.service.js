@@ -85,18 +85,16 @@ async function add(update) {
   }
 }
 
-async function update(update) {
+async function update(sentUpdate) {
   const updateToSave = {
-    title: update.title,
-    price: update.price,
-    preview: update.preview,
-    types: update.types,
-    stockQuantity: update.stockQuantity,
-    cover: update.cover,
+    title: sentUpdate.title,
+    content: sentUpdate.content,
+    createdAt: sentUpdate.createdAt,
+    position: sentUpdate.position,
   }
 
   try {
-    const criteria = { _id: ObjectId.createFromHexString(update._id) }
+    const criteria = { _id: ObjectId.createFromHexString(sentUpdate._id) }
 
     const collection = await dbService.getCollection('update')
 
@@ -105,16 +103,18 @@ async function update(update) {
     var updates = await updateCursor.toArray()
 
     await Promise.all(
-      updates.map((update) =>
+      updates.map((update) => {
+        console.log(update)
         collection.updateOne(
-          { _id: ObjectId.createFromHexString(update._id) },
+          { _id: update._id },
+          // { _id: ObjectId.createFromHexString(update._id) },
           {
             $set: {
               position: update.position + 1,
             },
           }
         )
-      )
+      })
     )
 
     await collection.updateOne(criteria, { $set: updateToSave })

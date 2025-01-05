@@ -115,7 +115,7 @@ async function getDiscount(couponCode) {
     const collection = await dbService.getCollection('coupon')
     const coupon = await collection.findOne(criteria)
 
-    if (coupon) {
+    if (coupon && coupon.isActive) {
       return { amount: coupon.amount, type: coupon.type, items: coupon.items }
     } else {
       throw new Error(`Couldn't find coupon`)

@@ -1,0 +1,40 @@
+[
+    {
+      "index": 0,
+      "title": {
+        "he": "מנוי קיץ",
+        "eng": "Summer"
+      },
+      "preview": {
+        "he": "מאי עד אוקטובר",
+        "eng": "May to October"
+      },
+      "class": "summer"
+
+    },
+    {
+      "index": 1,
+      "title": {
+        "he": "מנוי שנתי",
+        "eng": "All Year"
+      },
+      "preview": {
+        "he": "כל השנה, במחיר הכי משתלם",
+        "eng": "All year, best price"
+      },
+      "class": "year"
+    },
+    {
+      "index": 2,
+      "title": {
+        "he": "מנוי חורף",
+        "eng": "Winter"
+      },
+      "preview": {
+        "he": "אוקטובר עד אפריל",
+        "eng": "October to April"
+      },
+      "class": "winter"
+    }
+  ]
+  
