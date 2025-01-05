@@ -43,13 +43,7 @@ export async function addUpdate(req, res) {
 }
 
 export async function updateUpdate(req, res) {
-  const { loggedinUser, body: update } = req
-  const { _id: userId, isAdmin } = loggedinUser
-
-  if (!isAdmin && update.owner._id !== userId) {
-    res.status(403).send('Not your update...')
-    return
-  }
+  const { body: update } = req
 
   try {
     const updatedUpdate = await updateService.update(update)

@@ -25,8 +25,8 @@ export async function checkDiscount(req, res) {
 
     res.json(result)
   } catch (err) {
-    console.log(err)
-    throw err
+    console.error('Error checking discount:', err)
+    res.status(400).json({ error: err.message })
   }
 }
 
