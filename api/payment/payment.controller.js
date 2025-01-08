@@ -3,11 +3,16 @@ import { paymentService } from './payment.services.js'
 
 export async function addPayment(req, res) {
   try {
-    const { amount, orderId } = req.body
+    const { amount, orderId, goodUrl, badUrl } = req.body
     const order = {
       amount,
       orderId,
+      goodUrl,
+      badUrl,
     }
+    const loggedinUser = req.body.user
+
+    if (!loggedinUser) return res.status(401).send('Not Authenticated')
 
     const response = await paymentService.getLink(order)
 
@@ -24,6 +29,7 @@ export async function addPayment(req, res) {
 
 export async function successPayment(req, res) {
   try {
+    console.log('success:', req)
     const { ConfirmationKey, UniqueKey, Total } = req.query
 
     if (!ConfirmationKey || !UniqueKey || !Total) {

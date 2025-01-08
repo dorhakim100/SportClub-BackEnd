@@ -16,9 +16,9 @@ const router = express.Router()
 // We can add a middleware for the entire router:
 // router.use(requireAuth)
 
-router.post('/initiate', log, requireAuth, addPayment)
-router.get('/success', log, requireAuth, successPayment)
-router.get('/error', log, requireAuth, errorPayment)
-router.post('/cancel', log, requireAuth, cancelPayment)
+router.post('/initiate', log, addPayment)
+router.get('/success', log, successPayment)
+router.get('/error', log, errorPayment)
+router.post('/cancel', log, cancelPayment)
 
 export const paymentRoutes = router
