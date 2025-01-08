@@ -17,10 +17,15 @@ export const paymentService = {
 async function getLink(order) {
   const paymentRequest = {
     terminal: process.env.PELECARD_TERMINAL,
-    user: process.env.PELECARD_USER,
-    password: process.env.PELECARD_PASSWORD,
-    GoodURL: 'https://your-site.com/success', // add url!!
-    ErrorURL: 'https://your-site.com/error', // add url!!
+    user: process.env.PELECARD_USERNAME_DEMO,
+    password: process.env.PELECARD_PASSWORD_DEMO,
+    // user: process.env.PELECARD_USERNAME,
+    // password: process.env.PELECARD_PASSWORD,
+    // GoodURL: order.goodUrl, // add url!!
+    // ErrorURL: order.badUrl, // add url!!
+    GoodURL: 'http://localhost:5173/payment/success',
+    ErrorURL: 'http://localhost:5173/payment/error',
+
     Total: (order.amount * 100).toString(), // Amount in Agorot
     Currency: '1',
     ActionType: 'J4',
@@ -45,6 +50,7 @@ async function getLink(order) {
     const result = await response.json()
     logger.info('Payment link successfully retrieved:', result)
 
+    // return response
     return result
   } catch (err) {
     logger.error('cannot find classes', err)
