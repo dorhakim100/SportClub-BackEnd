@@ -9,12 +9,13 @@ import { convertToDate } from '../../services/util.service.js'
 export const paymentService = {
   getLink,
   cancelTransaction,
-  saveTransaction,
+  savePayment,
   updateTransactionStatus,
   verifyTransaction,
 }
 
 async function getLink(order) {
+  console.log(order)
   const paymentRequest = {
     terminal: process.env.PELECARD_TERMINAL,
     user: process.env.PELECARD_USERNAME_DEMO,
@@ -25,6 +26,14 @@ async function getLink(order) {
     // ErrorURL: order.badUrl, // add url!!
     GoodURL: 'http://localhost:5173/payment/success',
     ErrorURL: 'http://localhost:5173/payment/error',
+
+    CustomerName: order.user.fullname,
+    CustomerEmail: order.user.email,
+    CustomerPhone: order.user.phone,
+
+    UserKey: order.user.id,
+
+    ParamX: JSON.stringify(order.items), // Sending the array of items as a JSON string
 
     Total: (order.amount * 100).toString(), // Amount in Agorot
     Currency: '1',
@@ -58,19 +67,23 @@ async function getLink(order) {
   }
 }
 
-async function saveTransaction(transaction) {
+async function savePayment(payment) {
   // Get the database collection
-  const collection = await dbService.getCollection('transactions') // "transactions" is your MongoDB collection
 
   try {
-    // Insert the transaction data into the database
-    const result = await collection.insertOne(transaction)
+    const collection = await dbService.getCollection('payment') // "payments" is your MongoDB collection
 
-    // Return the saved transaction document
-    return result.ops[0] // Return the saved transaction object
+    const isExists = await collection.findOne({
+      'payment.transactionId': payment.transactionId,
+    })
+
+    if (!isExists) {
+      // Insert the transaction data into the database
+      const result = await collection.insertOne(payment)
+    }
   } catch (err) {
-    console.error('Error saving transaction:', err)
-    throw new Error('Failed to save transaction')
+    console.error('Error saving payment:', err)
+    throw new Error('Failed to save payment')
   }
 }
 
