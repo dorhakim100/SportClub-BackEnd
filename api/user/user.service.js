@@ -122,6 +122,7 @@ async function add(user) {
       password: user.password,
       ordersIds: user.ordersIds,
       items: user.items,
+      phone: user.phone,
     }
     const collection = await dbService.getCollection('user')
     await collection.insertOne(userToAdd)

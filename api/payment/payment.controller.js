@@ -1,14 +1,16 @@
 import { logger } from '../../services/logger.service.js'
 import { paymentService } from './payment.services.js'
 
-export async function addPayment(req, res) {
+export async function initiatePayment(req, res) {
   try {
-    const { amount, orderId, goodUrl, badUrl } = req.body
+    const { amount, orderId, goodUrl, badUrl, user, items } = req.body
     const order = {
       amount,
       orderId,
       goodUrl,
       badUrl,
+      user,
+      items,
     }
     const loggedinUser = req.body.user
 
@@ -24,6 +26,18 @@ export async function addPayment(req, res) {
   } catch (err) {
     logger.error('Failed to initiate payment', err)
     res.status(400).send({ err: 'Failed to initiate payment' })
+  }
+}
+
+export async function addPayment(req, res) {
+  try {
+    const { loggedinUser, body: payment } = req
+
+    const addedPayment = await paymentService.savePayment(payment)
+    res.json(addedPayment)
+  } catch (err) {
+    logger.error('Failed to save payment', err)
+    res.status(400).send({ err: 'Failed to save payment' })
   }
 }
 

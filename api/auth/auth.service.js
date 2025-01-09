@@ -79,13 +79,14 @@ async function signup({
   ordersIds = [],
   items = [],
   email,
+  phone,
 }) {
   const saltRounds = 10
 
   logger.debug(
     `auth.service - signup with username: ${username}, fullname: ${fullname}`
   )
-  if (!username || !password || !fullname || !email)
+  if (!username || !password || !fullname || !email || !phone)
     return Promise.reject('Missing required signup information')
 
   const userExist = await userService.getByUsername(username, email)
@@ -101,6 +102,7 @@ async function signup({
       ordersIds,
       items,
       email,
+      phone,
     })
   } catch (err) {
     console.log(err)
