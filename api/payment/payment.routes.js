@@ -18,8 +18,8 @@ const router = express.Router()
 // router.use(requireAuth)
 
 router.post('/initiate', log, initiatePayment)
+router.post('/add', log, addPayment)
 router.get('/success', log, successPayment)
-router.post('/', log, addPayment)
 router.get('/error', log, errorPayment)
 router.post('/cancel', log, cancelPayment)
 

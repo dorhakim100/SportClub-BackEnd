@@ -68,18 +68,45 @@ async function getLink(order) {
 }
 
 async function savePayment(payment) {
-  // Get the database collection
-
   try {
-    const collection = await dbService.getCollection('payment') // "payments" is your MongoDB collection
+    const collection = await dbService.getCollection('payment')
 
     const isExists = await collection.findOne({
-      'payment.transactionId': payment.transactionId,
+      pelecardTransactionId: payment.pelecardTransactionId,
     })
 
     if (!isExists) {
-      // Insert the transaction data into the database
-      const result = await collection.insertOne(payment)
+      let count = await collection.countDocuments() // Efficient way to get the document count
+      console.log('count', count)
+      const orderNum = ++count
+      console.log('num:', orderNum)
+      const paymentToSave = {
+        ...payment,
+        orderNum: orderNum,
+        createdAt: Date.now(),
+        isReady: false,
+      }
+      const result = await collection.insertOne(paymentToSave)
+
+      const userCollection = await dbService.getCollection('user')
+
+      const userIdCriteria = {
+        _id: ObjectId.createFromHexString(payment.userId),
+      }
+
+      const user = await userCollection.findOne(userIdCriteria)
+      const stringPaymentId = result.insertedId.toString()
+
+      const ordersIds = user.ordersIds
+      ordersIds.unshift(stringPaymentId)
+      const userToReturn = { ...user, items: [], ordersIds: ordersIds }
+
+      const updatedUser = await userCollection.updateOne(userIdCriteria, {
+        $set: { ordersIds: userToReturn.ordersIds },
+        $set: { items: [] },
+      })
+      delete userToReturn.password
+      return userToReturn
     }
   } catch (err) {
     console.error('Error saving payment:', err)
