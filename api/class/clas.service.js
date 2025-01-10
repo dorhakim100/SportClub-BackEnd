@@ -171,7 +171,6 @@ async function getById(classId, filter) {
       if (!occur.isActive) continue // Skip inactive occurrences
       occur.title = clas.title
       delete occur.time
-      console.log('Before Aggregation:', occur)
 
       // Convert trainer.id from string to ObjectId
       const trainerId = new ObjectId(occur.trainer.id) // Use ObjectId constructor
@@ -185,8 +184,6 @@ async function getById(classId, filter) {
           },
         ])
         .toArray()
-
-      console.log('Trainer Data:', trainerData)
 
       if (trainerData.length) {
         const id = occur.trainer.id

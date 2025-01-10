@@ -33,8 +33,8 @@ export async function addPayment(req, res) {
   try {
     const { loggedinUser, body: payment } = req
 
-    const addedPayment = await paymentService.savePayment(payment)
-    res.json(addedPayment)
+    const updatedUser = await paymentService.savePayment(payment)
+    if (updatedUser) res.json(updatedUser)
   } catch (err) {
     logger.error('Failed to save payment', err)
     res.status(400).send({ err: 'Failed to save payment' })
