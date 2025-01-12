@@ -8,14 +8,19 @@ import { convertToDate } from '../../services/util.service.js'
 
 export const paymentService = {
   getLink,
-  cancelTransaction,
   savePayment,
-  updateTransactionStatus,
+  query,
+  queryOpen,
+  update,
+  cancelTransaction,
   verifyTransaction,
 }
 
+const PAGE_SIZE = 6
+
 async function getLink(order) {
-  console.log(order)
+  const cart = { items: order.items, amount: order.amount }
+
   const paymentRequest = {
     terminal: process.env.PELECARD_TERMINAL,
     user: process.env.PELECARD_USERNAME_DEMO,
@@ -27,13 +32,9 @@ async function getLink(order) {
     GoodURL: 'http://localhost:5173/payment/success',
     ErrorURL: 'http://localhost:5173/payment/error',
 
-    CustomerName: order.user.fullname,
-    CustomerEmail: order.user.email,
-    CustomerPhone: order.user.phone,
-
     UserKey: order.user.id,
 
-    ParamX: JSON.stringify(order.items), // Sending the array of items as a JSON string
+    ParamX: JSON.stringify(cart), // Sending the object of cart as a JSON string
 
     Total: (order.amount * 100).toString(), // Amount in Agorot
     Currency: '1',
@@ -80,13 +81,6 @@ async function savePayment(payment) {
       console.log('count', count)
       const orderNum = ++count
       console.log('num:', orderNum)
-      const paymentToSave = {
-        ...payment,
-        orderNum: orderNum,
-        createdAt: Date.now(),
-        isReady: false,
-      }
-      const result = await collection.insertOne(paymentToSave)
 
       const userCollection = await dbService.getCollection('user')
 
@@ -95,6 +89,21 @@ async function savePayment(payment) {
       }
 
       const user = await userCollection.findOne(userIdCriteria)
+
+      const paymentToSave = {
+        ...payment,
+        orderNum: orderNum,
+        createdAt: Date.now(),
+        isReady: false,
+        user: {
+          id: payment.userId,
+          fullname: user.fullname,
+          phone: user.phone,
+        },
+      }
+      delete paymentToSave.userId
+
+      const result = await collection.insertOne(paymentToSave)
       const stringPaymentId = result.insertedId.toString()
 
       const ordersIds = user.ordersIds
@@ -114,18 +123,100 @@ async function savePayment(payment) {
   }
 }
 
-async function updateTransactionStatus(transactionId, status) {
-  const collection = await dbService.getCollection('transactions')
-
+async function query(filterBy = { txt: '' }) {
   try {
-    const updatedTransaction = await collection.updateOne(
-      { _id: transactionId },
-      { $set: { status } } // Update the status of the transaction
-    )
-    return updatedTransaction
+    const criteria = _buildCriteria(filterBy)
+    const sort = _buildSort(filterBy)
+
+    const collection = await dbService.getCollection('payment')
+    var paymentCursor = await collection.find(criteria, { sort })
+
+    if (filterBy.pageIdx !== undefined && !filterBy.isAll) {
+      paymentCursor.skip(filterBy.pageIdx * PAGE_SIZE).limit(PAGE_SIZE)
+    }
+
+    const payments = paymentCursor.toArray()
+    return payments
   } catch (err) {
-    console.error('Error updating transaction status:', err)
-    throw new Error('Failed to update transaction status')
+    logger.error('cannot find payments', err)
+    throw err
+  }
+}
+
+async function queryOpen() {
+  try {
+    const criteria = _buildCriteria({ onlyPending: true })
+    const sort = {}
+
+    const collection = await dbService.getCollection('payment')
+    var paymentCursor = await collection.find(criteria, { sort })
+
+    const payments = await paymentCursor.toArray()
+    return payments.length
+  } catch (err) {
+    logger.error('cannot find payments', err)
+    throw err
+  }
+}
+async function update(paymentToSave) {
+  try {
+    const collection = await dbService.getCollection('payment')
+
+    const paymentIdCriteria = {
+      _id: ObjectId.createFromHexString(paymentToSave._id),
+    }
+    delete paymentToSave._id
+
+    await collection.updateOne(paymentIdCriteria, { $set: paymentToSave })
+    return paymentToSave
+  } catch (err) {
+    console.error('Error updating payment status:', err)
+    throw new Error('Failed to update payment status')
+  }
+}
+
+function _buildCriteria(filterBy) {
+  let criteria = {}
+  if (filterBy.isAll) {
+    criteria = {}
+  }
+  if (filterBy.onlyPending) {
+    criteria.isReady = { $eq: false }
+  }
+  if (filterBy.txt) {
+    const txtCriteria = { $regex: filterBy.txt, $options: 'i' }
+    const orderNumCriteria = { orderNum: { $eq: parseInt(filterBy.txt) } }
+
+    criteria = {
+      $or: [
+        orderNumCriteria,
+        { 'user.fullname': txtCriteria },
+        { 'user.phone': txtCriteria },
+      ],
+    }
+  }
+  if (filterBy.isAdmin) {
+    // criteria._id = { $in: [] }
+    return criteria
+  }
+  if (filterBy.ordersIds) {
+    // If filterBy.ordersIds is a single string ID, make sure to convert it to an array
+    const orderIds = Array.isArray(filterBy.ordersIds)
+      ? filterBy.ordersIds.map((id) => new ObjectId(id)) // If it's already an array, convert each item to ObjectId
+      : [new ObjectId(filterBy.ordersIds)] // If it's a single ID, wrap it in an array
+
+    criteria._id = { $in: orderIds } // Use the $in operator to match any of the order IDs
+  }
+
+  return criteria
+}
+
+function _buildSort(filterBy) {
+  console.log(filterBy)
+  if (filterBy.sortDir === '1') {
+    return { createdAt: -1 }
+  } else {
+    return { createdAt: 1 }
   }
 }
 

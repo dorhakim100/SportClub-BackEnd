@@ -41,6 +41,47 @@ export async function addPayment(req, res) {
   }
 }
 
+export async function getPayments(req, res) {
+  try {
+    const filterBy = {
+      txt: req.query.txt || '',
+      onlyPending: req.query.onlyPending === 'true' ? true : false,
+      pageIdx: req.query.pageIdx,
+      isAll: req.query.isAll || false,
+      ordersIds: req.query.ordersIds || [],
+      sortDir: req.query.sortDir || 1,
+      isAdmin: req.query.isAdmin === 'true' ? true : false,
+    }
+    const payments = await paymentService.query(filterBy)
+    res.json(payments)
+  } catch (err) {
+    logger.error('Failed to get payments', err)
+    res.status(400).send({ err: 'Failed to get payments' })
+  }
+}
+
+export async function getOpenPayments(req, res) {
+  try {
+    const length = await paymentService.queryOpen()
+    res.json(length)
+  } catch (err) {
+    logger.error('Failed to get payments', err)
+    res.status(400).send({ err: 'Failed to get payments' })
+  }
+}
+
+export async function updatePayment(req, res) {
+  const { body: payment } = req
+
+  try {
+    const updatedPayment = await paymentService.update(payment)
+    res.json(updatedPayment)
+  } catch (err) {
+    logger.error('Failed to update payment', err)
+    res.status(400).send({ err: 'Failed to update payment' })
+  }
+}
+
 export async function successPayment(req, res) {
   try {
     console.log('success:', req)
