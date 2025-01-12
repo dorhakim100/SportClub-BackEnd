@@ -35,6 +35,12 @@ export function setupSocketAPI(http) {
       // emits only to sockets in the same room
       //   gIo.to(socket.myTopic).emit('add-msg', msg)
     })
+    socket.on('make-order', (order) => {
+      logger.info(`New order from socket [id: ${socket.id}]`)
+
+      // emits to all sockets:
+      gIo.emit('add-order', order)
+    })
     socket.on('user-watch', (userId) => {
       logger.info(
         `user-watch from socket [id: ${socket.id}], on user ${userId}`
