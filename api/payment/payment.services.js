@@ -32,10 +32,12 @@ async function getLink(order) {
     // password: process.env.PELECARD_PASSWORD,
     // GoodURL: order.goodUrl, // add url!!
     // ErrorURL: order.badUrl, // add url!!
-    GoodURL: Render_GoodURL,
-    ErrorURL: Render_ErrorURL,
-    // GoodURL: 'http://localhost:5173/payment/success',
-    // ErrorURL: 'http://localhost:5173/payment/error',
+    //
+    // GoodURL: Render_GoodURL,
+    // ErrorURL: Render_ErrorURL,
+    // demo urls ^
+    GoodURL: 'http://localhost:5173/payment/success',
+    ErrorURL: 'http://localhost:5173/payment/error',
 
     UserKey: order.user.id,
 
