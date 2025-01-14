@@ -9,7 +9,8 @@
         "he": "מאי עד אוקטובר",
         "eng": "May to October"
       },
-      "class": "summer"
+      "class": "summer",
+      "img":"https://res.cloudinary.com/dnxi70mfs/image/upload/v1736865228/DJI_0535_result_yrixxa.webp"
 
     },
     {
@@ -22,7 +23,8 @@
         "he": "כל השנה, במחיר הכי משתלם",
         "eng": "All year, best price"
       },
-      "class": "year"
+      "class": "year",
+      "img":"https://res.cloudinary.com/dnxi70mfs/image/upload/v1736865230/DJI_0547_result_ubxg5z.webp"
     },
     {
       "index": 2,
@@ -34,7 +36,8 @@
         "he": "אוקטובר עד אפריל",
         "eng": "October to April"
       },
-      "class": "winter"
+      "class": "winter",
+      "img":"https://res.cloudinary.com/dnxi70mfs/image/upload/v1735903092/DSC06141_wifl4r.webp"
     }
   ]
   
