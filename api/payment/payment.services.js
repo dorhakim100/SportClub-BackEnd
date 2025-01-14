@@ -114,8 +114,9 @@ async function savePayment(payment) {
         $set: { ordersIds: userToReturn.ordersIds },
         $set: { items: [] },
       })
-      delete userToReturn.password
-      return userToReturn
+      // delete userToReturn.password
+      // return userToReturn
+      return paymentToSave
     }
   } catch (err) {
     console.error('Error saving payment:', err)
