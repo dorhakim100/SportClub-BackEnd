@@ -30,8 +30,15 @@ export async function getOpenMessages(req, res) {
 
 export async function getMessageById(req, res) {
   try {
+    const filterBy = {
+      onlyDone: req.query.onlyDone === 'true' ? true : false,
+      pageIdx: req.query.pageIdx,
+      isAll: false,
+      txt: req.query.txt,
+      sortDir: req.query.sortDir === '-1' ? -1 : 1,
+    }
     const messagesId = req.params.id
-    const message = await messageService.getById(messagesId)
+    const message = await messageService.getById(messagesId, filterBy)
     res.json(message)
   } catch (err) {
     logger.error('Failed to get message', err)

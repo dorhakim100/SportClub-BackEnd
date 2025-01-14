@@ -53,7 +53,7 @@ async function queryOpen() {
   }
 }
 
-async function getById(messageId) {
+async function getById(messageId, filter) {
   try {
     const criteria = { _id: ObjectId.createFromHexString(messageId) }
 
@@ -61,6 +61,9 @@ async function getById(messageId) {
     const message = await collection.findOne(criteria)
 
     message.createdAt = message._id.getTimestamp()
+
+    const modified = await _setNextPrevItemId(message, filter)
+
     return message
   } catch (err) {
     logger.error(`while finding message ${messageId}`, err)
@@ -182,5 +185,33 @@ function _buildSort(filterBy) {
     return { createdAt: -filterBy.sortDir }
   } else {
     return { createdAt: -1 }
+  }
+}
+
+async function _setNextPrevItemId(item, filter) {
+  try {
+    const items = await query(filter)
+
+    if (!items.length) {
+      throw new Error('No items found for the given filter.')
+    }
+    const itemIdx = items.findIndex(
+      (currItem) => currItem._id.toHexString() === item._id.toHexString()
+    )
+
+    const nextItem = items[itemIdx + 1] ? items[itemIdx + 1] : items[0]
+    const prevItem = items[itemIdx - 1]
+      ? items[itemIdx - 1]
+      : items[items.length - 1]
+
+    item.prevNext = {
+      next: nextItem._id,
+      prev: prevItem._id,
+    }
+
+    return item
+  } catch (err) {
+    logger.error(`cannot load item ${item._id}`, err)
+    throw err
   }
 }
