@@ -18,6 +18,9 @@ export const paymentService = {
 
 const PAGE_SIZE = 6
 
+const Render_GoodURL = 'https://sportclub-kfar.onrender/payment/success'
+const Render_ErrorURL = 'https://sportclub-kfar.onrender/payment/error'
+
 async function getLink(order) {
   const cart = { items: order.items, amount: order.amount }
 
@@ -29,8 +32,10 @@ async function getLink(order) {
     // password: process.env.PELECARD_PASSWORD,
     // GoodURL: order.goodUrl, // add url!!
     // ErrorURL: order.badUrl, // add url!!
-    GoodURL: 'http://localhost:5173/payment/success',
-    ErrorURL: 'http://localhost:5173/payment/error',
+    GoodURL: Render_GoodURL,
+    ErrorURL: Render_ErrorURL,
+    // GoodURL: 'http://localhost:5173/payment/success',
+    // ErrorURL: 'http://localhost:5173/payment/error',
 
     UserKey: order.user.id,
 
