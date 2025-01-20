@@ -30,7 +30,7 @@ async function query(filterBy = { txt: '' }) {
     }
 
     const messages = await messageCursor.toArray()
-    console.log(messages)
+
     return messages
   } catch (err) {
     logger.error('cannot find messages', err)
@@ -165,7 +165,7 @@ function _buildCriteria(filterBy) {
       ],
     }
   }
-  console.log(filterBy)
+
   if (filterBy.onlyDone) {
     criteria.isDone = {
       $eq: false,

@@ -104,7 +104,6 @@ async function update(sentUpdate) {
 
     await Promise.all(
       updates.map((update) => {
-        console.log(update)
         collection.updateOne(
           { _id: update._id },
           // { _id: ObjectId.createFromHexString(update._id) },
