@@ -85,9 +85,8 @@ async function savePayment(payment) {
 
     if (!isExists) {
       let count = await collection.countDocuments() // Efficient way to get the document count
-      console.log('count', count)
+
       const orderNum = ++count
-      console.log('num:', orderNum)
 
       const userCollection = await dbService.getCollection('user')
 
@@ -220,7 +219,6 @@ function _buildCriteria(filterBy) {
 }
 
 function _buildSort(filterBy) {
-  console.log(filterBy)
   if (filterBy.sortDir === '1') {
     return { createdAt: -1 }
   } else {

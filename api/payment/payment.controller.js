@@ -84,7 +84,6 @@ export async function updatePayment(req, res) {
 
 export async function successPayment(req, res) {
   try {
-    console.log('success:', req)
     const { ConfirmationKey, UniqueKey, Total } = req.query
 
     if (!ConfirmationKey || !UniqueKey || !Total) {

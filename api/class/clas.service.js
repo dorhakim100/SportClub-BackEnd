@@ -192,7 +192,6 @@ async function getById(classId, filter) {
           ...occur.trainer,
           name: trainerData[0].name,
         }
-        console.log('afterChange:', occur.trainer)
       } else {
         console.log(`No trainer found for occurrence: ${JSON.stringify(occur)}`)
       }
