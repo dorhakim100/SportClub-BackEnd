@@ -4,6 +4,7 @@ import cors from 'cors'
 import express from 'express'
 import cookieParser from 'cookie-parser'
 
+import { redirectRoutes } from './api/redirect/redirect.routes.js'
 import { authRoutes } from './api/auth/auth.routes.js'
 import { userRoutes } from './api/user/user.routes.js'
 import { itemRoutes } from './api/item/item.routes.js'
@@ -41,6 +42,7 @@ if (process.env.NODE_ENV === 'production') {
 }
 app.all('*', setupAsyncLocalStorage)
 
+app.use('/api', redirectRoutes)
 app.use('/api/auth', authRoutes)
 app.use('/api/user', userRoutes)
 app.use('/api/item', itemRoutes)
