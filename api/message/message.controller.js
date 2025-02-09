@@ -6,7 +6,7 @@ export async function getMessages(req, res) {
     const filterBy = {
       txt: req.query.txt || '',
       onlyDone: req.query.onlyDone === 'true' ? true : false,
-      sortDir: req.query.sortDir || '',
+      sortDir: +req.query.sortDir || '',
       pageIdx: +req.query.pageIdx,
       isAll: req.query.isAll === 'true' ? true : false,
     }
