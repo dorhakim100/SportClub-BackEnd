@@ -182,9 +182,9 @@ function _buildCriteria(filterBy) {
 
 function _buildSort(filterBy) {
   if (filterBy.sortDir) {
-    return { createdAt: -filterBy.sortDir }
+    return { createdAt: filterBy.sortDir }
   } else {
-    return { createdAt: -1 }
+    return { createdAt: 1 }
   }
 }
 
