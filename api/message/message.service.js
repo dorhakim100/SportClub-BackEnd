@@ -23,7 +23,7 @@ async function query(filterBy = { txt: '' }) {
     const sort = _buildSort(filterBy)
 
     const collection = await dbService.getCollection('message')
-    var messageCursor = await collection.find(criteria, { sort })
+    var messageCursor = await collection.find(criteria).sort(sort)
 
     if (filterBy.pageIdx !== undefined && !filterBy.isAll) {
       messageCursor.skip(filterBy.pageIdx * PAGE_SIZE).limit(PAGE_SIZE)
@@ -182,9 +182,9 @@ function _buildCriteria(filterBy) {
 
 function _buildSort(filterBy) {
   if (filterBy.sortDir) {
-    return { createdAt: filterBy.sortDir }
+    return { _id: -filterBy.sortDir }
   } else {
-    return { createdAt: 1 }
+    return { _id: -1 }
   }
 }
 

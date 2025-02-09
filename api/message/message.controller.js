@@ -11,6 +11,8 @@ export async function getMessages(req, res) {
       isAll: req.query.isAll === 'true' ? true : false,
     }
 
+    console.log('sort:', filterBy.sortDir)
+
     const messages = await messageService.query(filterBy)
     res.json(messages)
   } catch (err) {
