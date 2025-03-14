@@ -135,6 +135,8 @@ async function update(item) {
     cover: item.cover,
   }
 
+  if (item.options) itemToSave.options = item.options
+
   try {
     const criteria = { _id: ObjectId.createFromHexString(item._id) }
 
