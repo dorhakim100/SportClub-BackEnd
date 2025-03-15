@@ -20,8 +20,10 @@ const PAGE_SIZE = 6
 
 const Render_GoodURL = 'https://sportclub-kfar.onrender/payment/success'
 const Render_ErrorURL = 'https://sportclub-kfar.onrender/payment/error'
-const GoodURL = 'https://www.moadonsport.com/payment/success'
-const ErrorURL = 'https://www.moadonsport.com/payment/error'
+const GoodURL = 'http://localhost:5173/payment/success'
+const ErrorURL = 'http://localhost:5173/payment/error'
+// const GoodURL = 'https://www.moadonsport.com/payment/success'
+// const ErrorURL = 'https://www.moadonsport.com/payment/error'
 
 async function getLink(order) {
   const cart = { items: order.items, amount: order.amount }
@@ -138,18 +140,176 @@ async function query(filterBy = { txt: '' }) {
     const sort = _buildSort(filterBy)
 
     const collection = await dbService.getCollection('payment')
-    var paymentCursor = await collection.find(criteria, { sort })
+    const pipeline = [
+      { $match: criteria },
 
+      // Build allOptionIds from items' options if needed
+      {
+        $addFields: {
+          allOptionIds: {
+            $reduce: {
+              input: '$items',
+              initialValue: [],
+              in: {
+                $concatArrays: [
+                  '$$value',
+                  {
+                    $filter: {
+                      input: '$$this.options',
+                      as: 'opt',
+                      cond: { $ne: ['$$opt', null] },
+                    },
+                  },
+                ],
+              },
+            },
+          },
+        },
+      },
+      {
+        $addFields: {
+          allOptionIds: {
+            $map: {
+              input: '$allOptionIds',
+              as: 'opt',
+              in: { $toObjectId: '$$opt' },
+            },
+          },
+        },
+      },
+      // Lookup matching option documents for all option ids
+      {
+        $lookup: {
+          from: 'option',
+          localField: 'allOptionIds',
+          foreignField: '_id',
+          as: 'optionsData',
+        },
+      },
+      // Replace each item's options with the corresponding option objects
+      {
+        $project: {
+          _id: 1,
+          pelecardTransactionId: 1,
+          amount: 1,
+          orderNum: 1,
+          createdAt: 1,
+          isReady: 1,
+          user: 1,
+          items: {
+            $map: {
+              input: '$items',
+              as: 'item',
+              in: {
+                title: '$$item.title',
+                price: '$$item.price',
+                cover: '$$item.cover',
+                id: '$$item.id',
+                quantity: '$$item.quantity',
+                options: {
+                  $map: {
+                    input: '$$item.options',
+                    as: 'optId',
+                    in: {
+                      $let: {
+                        vars: {
+                          converted: {
+                            $cond: [
+                              { $ne: ['$$optId', null] },
+                              { $toObjectId: '$$optId' },
+                              null,
+                            ],
+                          },
+                          optionObj: {
+                            $arrayElemAt: [
+                              {
+                                $filter: {
+                                  input: '$optionsData',
+                                  as: 'opt',
+                                  cond: {
+                                    $eq: [
+                                      '$$opt._id',
+                                      { $toObjectId: '$$optId' },
+                                    ],
+                                  },
+                                },
+                              },
+                              0,
+                            ],
+                          },
+                        },
+                        in: {
+                          $cond: [
+                            { $ifNull: ['$$optionObj', false] },
+                            {
+                              id: '$$optionObj._id',
+                              title: '$$optionObj.title',
+                            },
+                            null,
+                          ],
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+
+      // Add sorting stage
+      { $sort: sort },
+    ]
+
+    // If pagination is needed
     if (filterBy.pageIdx !== undefined && !filterBy.isAll) {
-      paymentCursor.skip(filterBy.pageIdx * PAGE_SIZE).limit(PAGE_SIZE)
+      pipeline.push(
+        { $skip: filterBy.pageIdx * PAGE_SIZE },
+        { $limit: PAGE_SIZE }
+      )
     }
 
-    const payments = paymentCursor.toArray()
-    return payments
+    const payments = await collection.aggregate(pipeline).toArray()
+
+    const modifiedPayments = _modifyPaymentOptions(payments)
+
+    return modifiedPayments
   } catch (err) {
     logger.error('cannot find payments', err)
     throw err
   }
+}
+
+function _modifyPaymentOptions(payments) {
+  const modified = payments.map((payment) => {
+    const modifiedItems = payment.items.map((item) => {
+      if (!item.options) return { ...item, options: [] }
+      if (!item.options[0]) return { ...item, options: [] }
+
+      const frequency = item.options.reduce((accu, option) => {
+        const { id } = option
+
+        accu[id] ? accu[id]++ : (accu[id] = 1)
+
+        return accu
+      }, {})
+
+      const options = Object.keys(frequency).map((key) => {
+        return {
+          id: key,
+          quantity: frequency[key],
+          title: item.options.find(
+            (optionToFind) => optionToFind.id.toString() === key
+          ).title,
+        }
+      })
+
+      return { ...item, options }
+    })
+    return { ...payment, items: modifiedItems }
+  })
+  return modified
 }
 
 async function queryOpen() {
@@ -175,8 +335,12 @@ async function update(paymentToSave) {
       _id: ObjectId.createFromHexString(paymentToSave._id),
     }
     delete paymentToSave._id
+    const originalPayment = await collection.findOne(paymentIdCriteria)
 
-    await collection.updateOne(paymentIdCriteria, { $set: paymentToSave })
+    const originalItems = originalPayment.items
+    await collection.updateOne(paymentIdCriteria, {
+      $set: { ...paymentToSave, items: originalItems },
+    })
     return paymentToSave
   } catch (err) {
     console.error('Error updating payment status:', err)

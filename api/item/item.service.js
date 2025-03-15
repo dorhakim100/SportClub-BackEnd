@@ -81,7 +81,61 @@ async function getById(itemId, filter) {
     const criteria = { _id: ObjectId.createFromHexString(itemId) }
 
     const collection = await dbService.getCollection('item')
-    const item = await collection.findOne(criteria)
+    // const item = await collection.findOne(criteria)
+
+    let item = await collection
+      .aggregate([
+        {
+          $match: criteria,
+        },
+        {
+          $addFields: {
+            optionsIds: {
+              $map: {
+                input: '$optionsIds',
+                as: 'id',
+                in: { $toObjectId: '$$id' }, // converts each string to an ObjectId
+              },
+            },
+          },
+        },
+        {
+          $lookup: {
+            from: 'option',
+            localField: 'optionsIds',
+            foreignField: '_id',
+            as: 'options',
+          },
+        },
+        {
+          $project: {
+            _id: 1,
+            title: 1,
+            preview: 1,
+            price: 1,
+            types: 1,
+            stockQuantity: 1,
+            cover: 1,
+            // optionsIds: 0,
+            // options: 1,
+            options: {
+              $map: {
+                input: '$options',
+                as: 'option',
+                in: {
+                  id: '$$option._id',
+                  title: '$$option.title',
+                },
+              },
+            },
+          },
+        },
+      ])
+      .toArray()
+
+    item = item[0]
+
+    // const optionCollection = await dbService.getCollection('option')
 
     item.createdAt = item._id.getTimestamp()
     const modified = await _setNextPrevItemId(item, filter)
@@ -135,9 +189,45 @@ async function update(item) {
     cover: item.cover,
   }
 
-  if (item.options) itemToSave.options = item.options
-
   try {
+    const { options } = item
+
+    if (options && options.length > 0) {
+      const optionCollection = await dbService.getCollection('option')
+      const updatedIds = []
+      const operations = options.map((option) => {
+        const { id } = option
+        delete option.id
+        if (ObjectId.isValid(id) && id.length === 24) {
+          updatedIds.push(id)
+          const optionCriteria = { _id: ObjectId.createFromHexString(id) }
+          return {
+            updateOne: {
+              filter: optionCriteria,
+              update: { $set: option },
+            },
+          }
+        } else {
+          return {
+            insertOne: {
+              document: option,
+            },
+          }
+        }
+      })
+      itemToSave.optionsIds = updatedIds
+
+      if (operations.length) {
+        const res = await optionCollection.bulkWrite(operations)
+        const { insertedIds } = res
+        const insertedIdsArray = Object.values(insertedIds)
+        if (insertedIdsArray && insertedIdsArray.length > 0) {
+          insertedIdsArray.forEach((newId) => {
+            itemToSave.optionsIds.push(newId.toString())
+          })
+        }
+      }
+    }
     const criteria = { _id: ObjectId.createFromHexString(item._id) }
 
     const collection = await dbService.getCollection('item')
