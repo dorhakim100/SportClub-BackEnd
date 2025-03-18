@@ -20,10 +20,10 @@ const PAGE_SIZE = 6
 
 const Render_GoodURL = 'https://sportclub-kfar.onrender/payment/success'
 const Render_ErrorURL = 'https://sportclub-kfar.onrender/payment/error'
-const GoodURL = 'http://localhost:5173/payment/success'
-const ErrorURL = 'http://localhost:5173/payment/error'
-// const GoodURL = 'https://www.moadonsport.com/payment/success'
-// const ErrorURL = 'https://www.moadonsport.com/payment/error'
+// const GoodURL = 'http://localhost:5173/payment/success'
+// const ErrorURL = 'http://localhost:5173/payment/error'
+const GoodURL = 'https://www.moadonsport.com/payment/success'
+const ErrorURL = 'https://www.moadonsport.com/payment/error'
 
 async function getLink(order) {
   const cart = { items: order.items, amount: order.amount }
