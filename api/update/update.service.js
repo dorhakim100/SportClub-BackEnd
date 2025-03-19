@@ -14,6 +14,7 @@ export const updateService = {
   add,
   update,
   saveUpdatesOrder,
+  getMessageUpdate,
 }
 
 async function query(filterBy = { txt: '' }) {
@@ -48,6 +49,17 @@ async function getById(updateId) {
     return update
   } catch (err) {
     logger.error(`while finding update ${updateId}`, err)
+    throw err
+  }
+}
+async function getMessageUpdate() {
+  try {
+    const criteria = { isMessage: true }
+    const collection = await dbService.getCollection('update')
+    const update = await collection.findOne(criteria)
+    return update
+  } catch (err) {
+    logger.error(`Error while finding update with isMessage true`, err)
     throw err
   }
 }
@@ -91,39 +103,78 @@ async function update(sentUpdate) {
     content: sentUpdate.content,
     createdAt: sentUpdate.createdAt,
     position: sentUpdate.position,
+    isMessage: sentUpdate.isMessage,
   }
+  const isOnlyMessage = sentUpdate.isOnlyMessage
 
   try {
     const criteria = { _id: ObjectId.createFromHexString(sentUpdate._id) }
-
     const collection = await dbService.getCollection('update')
 
-    var updateCursor = await collection.find({}, {})
+    // Build update query to apply to all documents:
+    // - Always increment position by 1.
+    // - If the sent update is marked as isMessage,
+    //   reset isMessage to false for all documents.
+    const updateFields = {}
+    if (!isOnlyMessage) {
+      updateFields = { $inc: { position: 1 } }
+    }
+    updateFields.$set = { isMessage: false }
 
-    var updates = await updateCursor.toArray()
+    // Update all documents in one go
+    await collection.updateMany({}, updateFields)
 
-    await Promise.all(
-      updates.map((update) => {
-        collection.updateOne(
-          { _id: update._id },
-          // { _id: ObjectId.createFromHexString(update._id) },
-          {
-            $set: {
-              position: update.position + 1,
-            },
-          }
-        )
-      })
-    )
-
+    // Update the specific document with the new values
     await collection.updateOne(criteria, { $set: updateToSave })
 
-    return update
+    return updateToSave
   } catch (err) {
-    logger.error(`cannot update update ${update._id}`, err)
+    logger.error(`cannot update update ${sentUpdate._id}`, err)
     throw err
   }
 }
+
+// async function update(sentUpdate) {
+//   const updateToSave = {
+//     title: sentUpdate.title,
+//     content: sentUpdate.content,
+//     createdAt: sentUpdate.createdAt,
+//     position: sentUpdate.position,
+//     isMessage: sentUpdate.isMessage,
+//   }
+
+//   try {
+//     const criteria = { _id: ObjectId.createFromHexString(sentUpdate._id) }
+
+//     const collection = await dbService.getCollection('update')
+
+//     var updateCursor = await collection.find({}, {})
+
+//     var updates = await updateCursor.toArray()
+
+//     await Promise.all(
+//       updates.map((update) => {
+//         collection.updateOne(
+//           { _id: update._id },
+//           // { _id: ObjectId.createFromHexString(update._id) },
+//           {
+//             $set: {
+//               position: update.position + 1,
+//               isMessage: sentUpdate.isMessage ? false : update.isMessage,
+//             },
+//           }
+//         )
+//       })
+//     )
+
+//     const updated = await collection.updateOne(criteria, { $set: updateToSave })
+
+//     return updated
+//   } catch (err) {
+//     logger.error(`cannot update update ${update._id}`, err)
+//     throw err
+//   }
+// }
 
 async function saveUpdatesOrder(reordered) {
   try {
