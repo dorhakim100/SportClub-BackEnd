@@ -11,6 +11,7 @@ import {
   updateUpdate,
   removeUpdate,
   reorderUpdates,
+  getMessageUpdate,
 } from './update.controller.js'
 
 const router = express.Router()
@@ -19,6 +20,7 @@ const router = express.Router()
 // router.use(requireAuth)
 
 router.get('/', log, getUpdates)
+router.get('/messageUpdate', log, getMessageUpdate)
 router.put('/reorder', log, requireAdmin, reorderUpdates)
 router.get('/:id', log, getUpdateById)
 router.post('/', log, requireAdmin, addUpdate)

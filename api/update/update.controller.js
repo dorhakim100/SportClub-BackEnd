@@ -29,6 +29,16 @@ export async function getUpdateById(req, res) {
   }
 }
 
+export async function getMessageUpdate(req, res) {
+  try {
+    const update = await updateService.getMessageUpdate()
+    res.json(update)
+  } catch (err) {
+    logger.error('Failed to get update', err)
+    res.status(400).send({ err: 'Failed to get update' })
+  }
+}
+
 export async function addUpdate(req, res) {
   const { loggedinUser, body: update } = req
 
