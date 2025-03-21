@@ -57,6 +57,7 @@ async function getMessageUpdate() {
     const criteria = { isMessage: true }
     const collection = await dbService.getCollection('update')
     const update = await collection.findOne(criteria)
+
     return update
   } catch (err) {
     logger.error(`Error while finding update with isMessage true`, err)
