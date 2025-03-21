@@ -444,7 +444,7 @@ CEO - Tamir Yishbi`,Amota={he:he$2,eng:eng$1};function AboutUs(){const o=useSele
         }
         .day-container {
           border: 1px solid #ccc;
-          padding: 5px;
+          padding: 3px;
           box-sizing: border-box;
           text-align:'center';
         }
@@ -452,7 +452,7 @@ CEO - Tamir Yishbi`,Amota={he:he$2,eng:eng$1};function AboutUs(){const o=useSele
         .hour-container {
           border-bottom: 1px solid #ddd;
           margin-bottom: 10px;
-          padding: 5px;
+          padding: 3px;
           box-sizing: border-box;
           text-align:'center';
         }
