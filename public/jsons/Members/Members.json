@@ -1,0 +1,53 @@
+[
+  {
+      "index": 0,
+      "title": {
+          "he": "מנוי קיץ",
+          "eng": "Summer Subscription"
+      },
+      "preview": {
+          "he": "מאי עד אוקטובר",
+          "eng": "May to October"
+      },
+      "class": "summer",
+      "img": "https://res.cloudinary.com/dnxi70mfs/image/upload/v1736865228/DJI_0535_result_yrixxa.webp",
+      "description": {
+          "he": "מתאים בעיקר לאוהבי הנופש, לברוח לאי של שקט ובריכה קרירה בחודשי הקיץ החמים. מנוי הקיץ חל בחודשים שבין מאי עד אוקטובר ומי שמקדים להירשם נהנה מתקופה ארוכה יותר במחיר אטרקטיבי.",
+          "eng": "Ideal for holiday lovers, escape to an oasis of calm and a cool pool during the hot summer months. The summer subscription is valid from May to October, and those who register early enjoy a longer period at an attractive price."
+      }
+  },
+  {
+      "index": 1,
+      "title": {
+          "he": "מנוי שנתי",
+          "eng": "Annual Subscription"
+      },
+      "preview": {
+          "he": "כל השנה, במחיר הכי משתלם",
+          "eng": "All year, best price"
+      },
+      "class": "year",
+      "img": "/imgs/member-type-all-year.webp",
+      "description": {
+          "he": "מתאים לכולם, עוזר לשמור על איכות חיים ושגרת ספורט בריאה במהלך כל השנה ובנוסף אוירת הנופש של הקיץ. המנוי מאפשר גישה מלאה לכל מתקני המועדון והינו לשנה מיום הרישום. מנוי שנתי הוא המשתלם ביותר כלכלית.",
+          "eng": "Suitable for everyone, helping to maintain quality of life and a healthy sports routine throughout the year, plus the summer holiday atmosphere. The subscription provides full access to all club facilities and is valid for one year from the date of registration. The annual subscription is the most economically advantageous."
+      }
+  },
+  {
+      "index": 2,
+      "title": {
+          "he": "מנוי חורף",
+          "eng": "Winter Subscription"
+      },
+      "preview": {
+          "he": "אוקטובר עד אפריל",
+          "eng": "October to April"
+      },
+      "class": "winter",
+      "img": "https://res.cloudinary.com/dnxi70mfs/image/upload/v1735903092/DSC06141_wifl4r.webp",
+      "description": {
+          "he": "מתאים לספורטאים שמחפשים להתאמן בחללים סגורים, בריכה מקורה ומחוממת, חדר כושר וסטודיו. מנוי חורף חל בחודשים שבין ספטמבר עד אפריל.",
+          "eng": "Suitable for athletes looking to train in indoor spaces, an indoor and heated pool, a gym, and a studio. The winter subscription is valid from September to April."
+      }
+  }
+]
