@@ -116,7 +116,7 @@ async function update(sentUpdate) {
     // - Always increment position by 1.
     // - If the sent update is marked as isMessage,
     //   reset isMessage to false for all documents.
-    const updateFields = {}
+    let updateFields = {}
     if (!isOnlyMessage) {
       updateFields = { $inc: { position: 1 } }
     }
