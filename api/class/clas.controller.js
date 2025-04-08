@@ -4,6 +4,7 @@ import { classService } from './clas.service.js'
 export async function getClasses(req, res) {
   try {
     const filterBy = {
+      txt: req.query.txt || '',
       pageIdx: req.query.pageIdx,
       isAll: req.query.isAll || false,
     }
