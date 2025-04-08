@@ -299,6 +299,9 @@ function _buildCriteria(filterBy) {
   //     maxPrice: { $lt: filterBy.maxPrice },
   //     types: { $all: filterBy.types },
   //   }
+
+  if (!filterBy) return criteria
+
   if (filterBy.txt) {
     criteria.$or = [
       { 'title.eng': { $regex: filterBy.txt, $options: 'i' } },
