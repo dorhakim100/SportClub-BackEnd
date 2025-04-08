@@ -5,8 +5,8 @@ export async function getClasses(req, res) {
   try {
     const filterBy = {
       txt: req.query.txt || '',
-      pageIdx: req.query.pageIdx,
-      isAll: req.query.isAll || false,
+      pageIdx: +req.query.pageIdx,
+      isAll: req.query.isAll === 'false' ? false : true,
     }
 
     const classes = await classService.query(filterBy)
