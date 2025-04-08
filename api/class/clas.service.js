@@ -26,7 +26,11 @@ async function query(filterBy = { txt: '' }) {
     const collection = await dbService.getCollection('class')
     var classCursor = await collection.find(criteria, { sort })
 
-    if (!filterBy.isSkipPage && filterBy.pageIdx !== undefined) {
+    // if (!filterBy.isSkipPage && filterBy.pageIdx !== undefined) {
+    //   classCursor.skip(filterBy.pageIdx * PAGE_SIZE).limit(PAGE_SIZE)
+    // }
+
+    if (filterBy.pageIdx !== undefined && !filterBy.isAll) {
       classCursor.skip(filterBy.pageIdx * PAGE_SIZE).limit(PAGE_SIZE)
     }
 
