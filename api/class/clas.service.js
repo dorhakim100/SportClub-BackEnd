@@ -303,7 +303,13 @@ function _buildCriteria(filterBy) {
     criteria.$or = [
       { 'title.eng': { $regex: filterBy.txt, $options: 'i' } },
       { 'title.he': { $regex: filterBy.txt, $options: 'i' } },
+      { 'description.eng': { $regex: filterBy.txt, $options: 'i' } },
+      { 'description.he': { $regex: filterBy.txt, $options: 'i' } },
     ]
+  }
+
+  if (filterBy.intensity) {
+    criteria.intensity = { $lte: filterBy.intensity }
   }
 
   //   return criteria

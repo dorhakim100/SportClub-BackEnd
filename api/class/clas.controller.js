@@ -6,6 +6,7 @@ export async function getClasses(req, res) {
     const filterBy = {
       txt: req.query.txt || '',
       pageIdx: +req.query.pageIdx,
+      intensity: +req.query.intensity || '',
       isAll: req.query.isAll === 'false' ? false : true,
     }
 
