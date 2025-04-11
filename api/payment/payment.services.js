@@ -30,10 +30,10 @@ async function getLink(order) {
 
   const paymentRequest = {
     terminal: process.env.PELECARD_TERMINAL,
-    user: process.env.PELECARD_USERNAME_DEMO,
-    password: process.env.PELECARD_PASSWORD_DEMO,
-    // user: process.env.PELECARD_USERNAME,
-    // password: process.env.PELECARD_PASSWORD,
+    // user: process.env.PELECARD_USERNAME_DEMO,
+    // password: process.env.PELECARD_PASSWORD_DEMO,
+    user: process.env.PELECARD_USERNAME,
+    password: process.env.PELECARD_PASSWORD,
     GoodURL: GoodURL,
     ErrorURL: ErrorURL,
     //
