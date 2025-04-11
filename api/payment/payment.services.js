@@ -29,9 +29,10 @@ async function getLink(order) {
   const cart = { items: order.items, amount: order.amount }
 
   const paymentRequest = {
-    terminal: process.env.PELECARD_TERMINAL,
+    // terminal: process.env.PELECARD_TERMINAL_DEMO,
     // user: process.env.PELECARD_USERNAME_DEMO,
     // password: process.env.PELECARD_PASSWORD_DEMO,
+    terminal: process.env.PELECARD_TERMINAL,
     user: process.env.PELECARD_USERNAME,
     password: process.env.PELECARD_PASSWORD,
     GoodURL: GoodURL,
@@ -83,9 +84,12 @@ async function savePayment(payment) {
   try {
     const collection = await dbService.getCollection('payment')
 
+    console.log('payment', payment)
     const isExists = await collection.findOne({
       pelecardTransactionId: payment.pelecardTransactionId,
     })
+
+    console.log('isExists', isExists)
 
     if (!isExists) {
       let count = await collection.countDocuments() // Efficient way to get the document count
