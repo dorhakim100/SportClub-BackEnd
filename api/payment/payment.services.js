@@ -84,12 +84,9 @@ async function savePayment(payment) {
   try {
     const collection = await dbService.getCollection('payment')
 
-    console.log('payment', payment)
     const isExists = await collection.findOne({
       pelecardTransactionId: payment.pelecardTransactionId,
     })
-
-    console.log('isExists', isExists)
 
     if (!isExists) {
       let count = await collection.countDocuments() // Efficient way to get the document count
