@@ -13,6 +13,7 @@ import { messageRoutes } from './api/message/message.routes.js'
 import { trainerRoutes } from './api/trainer/trainer.routes.js'
 import { updateRoutes } from './api/update/update.routes.js'
 import { paymentRoutes } from './api/payment/payment.routes.js'
+import { openingRoutes } from './api/opening/opening.routes.js'
 // import { jsonRoutes } from './api/json/json.routes.js'
 import { setupSocketAPI } from './services/socket.service.js'
 
@@ -50,6 +51,7 @@ app.use('/api/message', messageRoutes)
 app.use('/api/trainer', trainerRoutes)
 app.use('/api/update', updateRoutes)
 app.use('/api/payment', paymentRoutes)
+app.use('/api/opening', openingRoutes)
 // app.use('/api/json', jsonRoutes)
 
 setupSocketAPI(server)
