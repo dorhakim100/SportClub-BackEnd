@@ -22,7 +22,8 @@ async function login(
   isRemembered,
   loginToken,
   isGoogle,
-  fullname
+  fullname,
+  imgUrl = ''
 ) {
   try {
     if (isGoogle) {
@@ -30,6 +31,7 @@ async function login(
       if (isGoogleUser) {
         delete isGoogleUser.password
         isGoogleUser._id = isGoogleUser._id.toString()
+        isGoogleUser.imgUrl = imgUrl
         return isGoogleUser
       } else {
         const isAdmin = emailOrUsername === (SERVICE || MANAGER) ? true : false
@@ -40,6 +42,7 @@ async function login(
           ordersIds: [],
           items: [],
           email: emailOrUsername,
+          imgUrl,
         })
       }
     }
@@ -64,6 +67,7 @@ async function login(
 
     delete user.password
     user._id = user._id.toString()
+    user.imgUrl = imgUrl
     return user
   } catch (err) {
     console.log(err)
@@ -119,6 +123,7 @@ function getLoginToken(user) {
     items: user.items,
     email: user.email,
   }
+
   return cryptr.encrypt(JSON.stringify(userInfo))
 }
 
