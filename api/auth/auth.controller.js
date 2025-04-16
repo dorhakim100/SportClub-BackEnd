@@ -6,6 +6,8 @@ export async function login(req, res) {
   const { isGoogle, fullname } = req.body
 
   const isRemembered = req.body.isRemembered
+  let imgUrl
+  if (req.body.imgUrl) imgUrl = req.body.imgUrl
   try {
     const user = await authService.login(
       username,
@@ -13,7 +15,8 @@ export async function login(req, res) {
       isRemembered,
       req.cookies.loginToken,
       isGoogle,
-      fullname
+      fullname,
+      imgUrl
     )
 
     const loginToken = authService.getLoginToken(user)
@@ -22,6 +25,7 @@ export async function login(req, res) {
 
     res.cookie('loginToken', loginToken, { sameSite: 'None', secure: true })
     if (!user.phone) user.phone = ''
+    if (imgUrl) user.imgUrl = imgUrl
     res.json(user)
   } catch (err) {
     logger.error('Failed to Login ' + err)
