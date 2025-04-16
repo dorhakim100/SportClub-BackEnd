@@ -2,6 +2,10 @@ import { dbService } from '../../services/db.service.js'
 import { logger } from '../../services/logger.service.js'
 
 import { ObjectId } from 'mongodb'
+import Cryptr from 'cryptr'
+
+import bcrypt from 'bcrypt'
+const cryptr = new Cryptr(process.env.SECRET || 'Secret-Puk-1234')
 
 export const userService = {
   add, // Create (Signup)
@@ -94,6 +98,8 @@ async function remove(userId) {
 }
 
 async function update(user) {
+  const saltRounds = 10
+
   try {
     // peek only updatable properties
     const userToSave = {
@@ -101,10 +107,17 @@ async function update(user) {
       fullname: user.fullname,
       items: user.items,
       ordersIds: user.ordersIds,
+      phone: user.phone,
+    }
+    let hash
+    if (user.password) {
+      hash = await bcrypt.hash(user.password, saltRounds)
+      userToSave.password = hash
     }
     const collection = await dbService.getCollection('user')
     await collection.updateOne({ _id: userToSave._id }, { $set: userToSave })
-    return userToSave
+    const userToSend = collection.findOne({ _id: userToSave._id })
+    return userToSend
   } catch (err) {
     logger.error(`cannot update user ${user._id}`, err)
     throw err
