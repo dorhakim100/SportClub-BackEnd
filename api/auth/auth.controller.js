@@ -21,6 +21,7 @@ export async function login(req, res) {
     logger.info('User login: ', user)
 
     res.cookie('loginToken', loginToken, { sameSite: 'None', secure: true })
+    if (!user.phone) user.phone = ''
     res.json(user)
   } catch (err) {
     logger.error('Failed to Login ' + err)
