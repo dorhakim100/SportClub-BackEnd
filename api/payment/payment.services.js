@@ -196,6 +196,7 @@ async function query(filterBy = { txt: '' }) {
           orderNum: 1,
           createdAt: 1,
           isReady: 1,
+          isDelivered: 1,
           user: 1,
           items: {
             $map: {
