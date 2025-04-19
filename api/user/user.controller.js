@@ -6,10 +6,15 @@ export async function getUser(req, res) {
   try {
     const requiredId = req.params.id
     const { loggedinUser } = req
+    console.log(requiredId)
+    console.log(loggedinUser)
 
     // if (!loggedinUser.isAdmin && requiredId !== loggedinUser._id) {
     //   return res.status(404).send({ err: 'Failed to get user' })
     // }
+    if (requiredId !== loggedinUser._id) {
+      return res.status(404).send({ err: 'Failed to get user' })
+    }
 
     const user = await userService.getById(req.params.id)
     if (!user) {
