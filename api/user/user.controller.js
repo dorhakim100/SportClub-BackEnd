@@ -23,6 +23,20 @@ export async function getUser(req, res) {
   }
 }
 
+export async function getRememberedMeUser(req, res) {
+  try {
+    const requiredId = req.params.id
+    const user = await userService.getById(req.params.id)
+    if (!user) {
+      return res.status(404).send({ err: 'User not found' })
+    }
+    res.send(user)
+  } catch (err) {
+    logger.error('Failed to get user', err)
+    res.status(400).send({ err: 'Failed to get user' })
+  }
+}
+
 export async function getUsers(req, res) {
   try {
     const filterBy = {
