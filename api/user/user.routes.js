@@ -16,7 +16,7 @@ import {
 const router = express.Router()
 
 router.get('/', requireAdmin, getUsers)
-router.get('/rememberMe/:id', requireAuth, getRememberedMeUser)
+router.get('/rememberMe/:id', getRememberedMeUser)
 router.get('/:id', requireAuth, getUser)
 router.put('/:id', requireAuth, updateUser)
 router.delete('/:id', requireAuth, requireAdmin, deleteUser)
