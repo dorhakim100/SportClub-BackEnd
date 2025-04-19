@@ -51,6 +51,13 @@ async function query(filterBy = { txt: '' }) {
 
     const trainers = await collection.aggregate(aggregationPipeline).toArray()
 
+    if (filterBy.isMax) {
+      let maxPage = trainers.length / PAGE_SIZE
+      maxPage = Math.ceil(maxPage)
+
+      return maxPage
+    }
+
     return trainers
   } catch (err) {
     logger.error('cannot find trainers', err)

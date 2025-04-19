@@ -274,6 +274,13 @@ async function query(filterBy = { txt: '' }) {
 
     const payments = await collection.aggregate(pipeline).toArray()
 
+    if (filterBy.isMax) {
+      let maxPage = payments.length / PAGE_SIZE
+      maxPage = Math.ceil(maxPage)
+
+      return maxPage
+    }
+
     const modifiedPayments = _modifyPaymentOptions(payments)
 
     return modifiedPayments

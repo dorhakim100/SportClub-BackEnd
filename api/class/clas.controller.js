@@ -7,10 +7,15 @@ export async function getClasses(req, res) {
       txt: req.query.txt || '',
       pageIdx: +req.query.pageIdx,
       intensity: +req.query.intensity || '',
-      isAll: req.query.isAll === 'false' ? false : true,
+      isAll: req.query.isAll === 'true' ? true : false,
+      isMax: req.query.isMax === 'true' ? true : false,
     }
 
     const classes = await classService.query(filterBy)
+
+    if (filterBy.isMax) {
+      return res.json(classes)
+    }
     res.json(classes)
   } catch (err) {
     logger.error('Failed to get classes', err)

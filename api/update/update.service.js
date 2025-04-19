@@ -31,6 +31,13 @@ async function query(filterBy = { txt: '' }) {
 
     var updates = await updateCursor.toArray()
 
+    if (filterBy.isMax) {
+      let maxPage = updates.length / PAGE_SIZE
+      maxPage = Math.ceil(maxPage)
+
+      return maxPage
+    }
+
     return updates
   } catch (err) {
     logger.error('cannot find updates', err)

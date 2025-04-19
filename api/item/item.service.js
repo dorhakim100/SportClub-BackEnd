@@ -30,6 +30,13 @@ async function query(filterBy = { txt: '' }) {
 
     const items = await itemCursor.toArray()
 
+    if (filterBy.isMax) {
+      let maxPage = items.length / PAGE_SIZE
+      maxPage = Math.ceil(maxPage)
+
+      return maxPage
+    }
+
     return items
   } catch (err) {
     logger.error('cannot find items', err)

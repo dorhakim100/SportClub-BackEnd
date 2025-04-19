@@ -27,6 +27,14 @@ async function query(filterBy = {}) {
     }
 
     let users = await userCursor.toArray()
+
+    if (filterBy.isMax) {
+      let maxPage = users.length / PAGE_SIZE
+      maxPage = Math.ceil(maxPage)
+
+      return maxPage
+    }
+
     users = users.map((user) => {
       delete user.password
       user.createdAt = user._id.getTimestamp()

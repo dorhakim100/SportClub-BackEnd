@@ -9,9 +9,14 @@ export async function getMessages(req, res) {
       sortDir: +req.query.sortDir || '',
       pageIdx: +req.query.pageIdx,
       isAll: req.query.isAll === 'true' ? true : false,
+      isMax: req.query.isMax === 'true' ? true : false,
     }
 
     const messages = await messageService.query(filterBy)
+
+    if (filterBy.isMax) {
+      return res.json(messages)
+    }
     res.json(messages)
   } catch (err) {
     logger.error('Failed to get messages', err)

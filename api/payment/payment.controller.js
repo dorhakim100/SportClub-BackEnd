@@ -51,8 +51,12 @@ export async function getPayments(req, res) {
       ordersIds: req.query.ordersIds || [],
       sortDir: req.query.sortDir || 1,
       isAdmin: req.query.isAdmin === 'true' ? true : false,
+      isMax: req.query.isMax === 'true' ? true : false,
     }
     const payments = await paymentService.query(filterBy)
+    if (filterBy.isMax) {
+      return res.json(payments)
+    }
     res.json(payments)
   } catch (err) {
     logger.error('Failed to get payments', err)
