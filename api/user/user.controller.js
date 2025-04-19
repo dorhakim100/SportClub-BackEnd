@@ -28,8 +28,14 @@ export async function getUsers(req, res) {
       txt: req.query?.txt || '',
       calledUserId: req.query?.calledUserId || '',
       pageIdx: req.query?.pageIdx || 0,
+      isAll: req.query?.isAll === 'true' ? true : false,
+      isMax: req.query?.isMax === 'true' ? true : false,
     }
     const users = await userService.query(filterBy)
+    if (filterBy.isMax) {
+      return res.json(users)
+    }
+
     res.send(users)
   } catch (err) {
     logger.error('Failed to get users', err)

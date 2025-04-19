@@ -9,9 +9,15 @@ export async function getItems(req, res) {
       sortDir: req.query.sortDir || '',
       types: req.query.types || [],
       pageIdx: +req.query.pageIdx,
-      isAll: req.query.isAll || false,
+      isAll: req.query.isAll === 'true' ? true : false,
+      isMax: req.query.isMax === 'true' ? true : false,
     }
+
     const items = await itemService.query(filterBy)
+
+    if (filterBy.isMax) {
+      return res.json(items)
+    }
 
     res.json(items)
   } catch (err) {

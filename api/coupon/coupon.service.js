@@ -29,6 +29,14 @@ async function query(filterBy = { txt: '' }) {
     }
 
     const coupons = couponCursor.toArray()
+
+    if (filterBy.isMax) {
+      let maxPage = coupons.length / PAGE_SIZE
+      maxPage = Math.ceil(maxPage)
+
+      return maxPage
+    }
+
     return coupons
   } catch (err) {
     logger.error('cannot find coupons', err)

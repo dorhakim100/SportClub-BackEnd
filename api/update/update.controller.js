@@ -5,12 +5,17 @@ export async function getUpdates(req, res) {
   try {
     const filterBy = {
       isAll: req.query.isAll === 'true' ? true : false,
+      isMax: req.query.isMax === 'true' ? true : false,
     }
+
     if (req.query.pageIdx) {
       filterBy.pageIdx = +req.query.pageIdx
     }
 
     const updates = await updateService.query(filterBy)
+    if (filterBy.isMax) {
+      return res.json(updates)
+    }
     res.json(updates)
   } catch (err) {
     logger.error('Failed to get updates', err)

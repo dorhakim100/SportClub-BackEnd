@@ -35,6 +35,13 @@ async function query(filterBy = { txt: '' }) {
     }
 
     const classes = await classCursor.toArray()
+
+    if (filterBy.isMax) {
+      let maxPage = classes.length / PAGE_SIZE
+      maxPage = Math.ceil(maxPage)
+
+      return maxPage
+    }
     return classes
   } catch (err) {
     logger.error('cannot find classes', err)

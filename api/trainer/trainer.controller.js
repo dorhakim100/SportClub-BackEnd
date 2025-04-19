@@ -8,8 +8,14 @@ export async function getTrainers(req, res) {
       pageIdx: req.query.pageIdx,
       isAll: req.query.isAll === 'true' ? true : false,
       isRandom: req.query.isRandom === 'true' ? true : false,
+      isMax: req.query.isMax === 'true' ? true : false,
     }
+
     const trainers = await trainerService.query(filterBy)
+
+    if (filterBy.isMax) {
+      return res.json(trainers)
+    }
     res.json(trainers)
   } catch (err) {
     logger.error('Failed to get trainers', err)

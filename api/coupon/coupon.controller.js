@@ -7,9 +7,15 @@ export async function getCoupons(req, res) {
       txt: req.query.txt || '',
       allActive: req.query.allActive || false,
       pageIdx: req.query.pageIdx,
-      isAll: req.query.isAll || false,
+      isAll: req.query.isAll === 'true' ? true : false,
+      isMax: req.query.isMax === 'true' ? true : false,
     }
+
     const coupons = await couponService.query(filterBy)
+
+    if (filterBy.isMax) {
+      return res.json(coupons)
+    }
     res.json(coupons)
   } catch (err) {
     logger.error('Failed to get coupons', err)

@@ -31,6 +31,13 @@ async function query(filterBy = { txt: '' }) {
 
     const messages = await messageCursor.toArray()
 
+    if (filterBy.isMax) {
+      let maxPage = messages.length / PAGE_SIZE
+      maxPage = Math.ceil(maxPage)
+
+      return maxPage
+    }
+
     return messages
   } catch (err) {
     logger.error('cannot find messages', err)
