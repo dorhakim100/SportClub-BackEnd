@@ -27,12 +27,13 @@ async function login(
 ) {
   try {
     if (isGoogle) {
-      const isGoogleUser = await userService.getByUsername(emailOrUsername)
-      if (isGoogleUser) {
-        delete isGoogleUser.password
-        isGoogleUser._id = isGoogleUser._id.toString()
-        isGoogleUser.imgUrl = imgUrl
-        return isGoogleUser
+      const googleUser = await userService.getByUsername(emailOrUsername)
+      if (googleUser) {
+        delete googleUser.password
+        googleUser._id = googleUser._id.toString()
+        googleUser.imgUrl = imgUrl
+        await userService.update({ ...googleUser, imgUrl: imgUrl })
+        return googleUser
       } else {
         const isAdmin = emailOrUsername === (SERVICE || MANAGER) ? true : false
         return userService.add({

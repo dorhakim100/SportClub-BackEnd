@@ -6,6 +6,7 @@ import Cryptr from 'cryptr'
 
 import bcrypt from 'bcrypt'
 const cryptr = new Cryptr(process.env.SECRET || 'Secret-Puk-1234')
+const PAGE_SIZE = 6
 
 export const userService = {
   add, // Create (Signup)
@@ -20,7 +21,12 @@ async function query(filterBy = {}) {
   const criteria = _buildCriteria(filterBy)
   try {
     const collection = await dbService.getCollection('user')
-    var users = await collection.find(criteria).toArray()
+    var userCursor = await collection.find(criteria)
+    if (filterBy.pageIdx !== undefined && !filterBy.isAll) {
+      userCursor.skip(filterBy.pageIdx * PAGE_SIZE).limit(PAGE_SIZE)
+    }
+
+    let users = await userCursor.toArray()
     users = users.map((user) => {
       delete user.password
       user.createdAt = user._id.getTimestamp()
@@ -108,6 +114,7 @@ async function update(user) {
       items: user.items,
       ordersIds: user.ordersIds,
       phone: user.phone,
+      imgUrl: user.imgUrl,
     }
     let hash
     if (user.password) {
@@ -159,8 +166,10 @@ function _buildCriteria(filterBy) {
       },
     ]
   }
-  if (filterBy.minBalance) {
-    criteria.score = { $gte: filterBy.minBalance }
+
+  if (filterBy.calledUserId) {
+    criteria._id = { $ne: ObjectId.createFromHexString(filterBy.calledUserId) }
   }
+
   return criteria
 }
