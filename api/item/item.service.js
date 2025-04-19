@@ -60,6 +60,7 @@ async function queryCart(cart) {
             _id: 0,
             cover: 1,
             price: 1,
+            types: 1,
             title: 1,
           },
         },

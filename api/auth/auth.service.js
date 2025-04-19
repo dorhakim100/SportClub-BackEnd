@@ -44,6 +44,10 @@ async function login(
           items: [],
           email: emailOrUsername,
           imgUrl,
+          memberStatus: {
+            isMember: false,
+            expiry: '',
+          },
         })
       }
     }
@@ -85,6 +89,7 @@ async function signup({
   items = [],
   email,
   phone,
+  memberStatus,
 }) {
   const saltRounds = 10
 
@@ -108,6 +113,7 @@ async function signup({
       items,
       email,
       phone,
+      memberStatus,
     })
   } catch (err) {
     console.log(err)
