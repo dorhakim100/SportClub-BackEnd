@@ -26,6 +26,7 @@ export async function getUsers(req, res) {
   try {
     const filterBy = {
       txt: req.query?.txt || '',
+      onlyMembers: req.query?.onlyMembers === 'true' ? true : false,
       calledUserId: req.query?.calledUserId || '',
       pageIdx: req.query?.pageIdx || 0,
       isAll: req.query?.isAll === 'true' ? true : false,

@@ -123,6 +123,7 @@ async function update(user) {
       ordersIds: user.ordersIds,
       phone: user.phone,
       imgUrl: user.imgUrl,
+      memberStatus: user.memberStatus,
     }
     let hash
     if (user.password) {
@@ -151,6 +152,10 @@ async function add(user) {
       ordersIds: user.ordersIds,
       items: user.items,
       phone: user.phone,
+      memberStatus: {
+        isMember: false,
+        expiry: '',
+      },
     }
     const collection = await dbService.getCollection('user')
     await collection.insertOne(userToAdd)
@@ -175,6 +180,9 @@ function _buildCriteria(filterBy) {
     ]
   }
 
+  if (filterBy.onlyMembers) {
+    criteria['memberStatus.isMember'] = { $eq: true }
+  }
   if (filterBy.calledUserId) {
     criteria._id = { $ne: ObjectId.createFromHexString(filterBy.calledUserId) }
   }
