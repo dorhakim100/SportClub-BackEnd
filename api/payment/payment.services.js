@@ -5,6 +5,7 @@ import { makeId } from '../../services/util.service.js'
 import { dbService } from '../../services/db.service.js'
 import { asyncLocalStorage } from '../../services/als.service.js'
 import { convertToDate } from '../../services/util.service.js'
+import { notifyService } from '../../services/notify.service.js'
 
 export const paymentService = {
   getLink,
@@ -350,6 +351,15 @@ async function update(paymentToSave) {
     await collection.updateOne(paymentIdCriteria, {
       $set: { ...paymentToSave, items: originalItems },
     })
+    // if(paymentToSave.isReady && !paymentToSave.isDelivered){
+    // const message = `hey ${paymentToSave.user.fullname}`
+
+    //   notifyService.sendWhatsAppNotification(
+    //     message,
+    //     process.env.ADMIN_WHATSAPP_FROM,
+    //     paymentToSave.user.phone
+    //   )
+    // }
     return paymentToSave
   } catch (err) {
     console.error('Error updating payment status:', err)
