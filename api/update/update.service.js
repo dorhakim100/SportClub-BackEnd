@@ -112,6 +112,7 @@ async function update(sentUpdate) {
     createdAt: sentUpdate.createdAt,
     position: sentUpdate.position,
     isMessage: sentUpdate.isMessage,
+    link: sentUpdate.link,
   }
   const isOnlyMessage = sentUpdate.isOnlyMessage
 
