@@ -58,7 +58,7 @@ async function queryCart(cart) {
           $project: {
             id: '$_id',
             _id: 0,
-            cover: 1,
+            imgs: 1,
             price: 1,
             types: 1,
             title: 1,
@@ -68,10 +68,13 @@ async function queryCart(cart) {
       .toArray()
 
     const itemsToReturn = cart.map((item) => {
+      console.log(item)
       const currItem = itemsFromCollection.find(
         (itemToFind) => itemToFind.id.toString() === item.id
       )
-      return currItem ? { ...currItem, quantity: item.quantity } : null
+      return currItem
+        ? { ...currItem, quantity: item.quantity, cover: currItem?.imgs[0] }
+        : null
     })
 
     // Filter out any null entries in case some items are not found
@@ -123,7 +126,7 @@ async function getById(itemId, filter) {
             price: 1,
             types: 1,
             stockQuantity: 1,
-            cover: 1,
+            imgs: 1,
             // optionsIds: 0,
             // options: 1,
             options: {
@@ -194,7 +197,7 @@ async function update(item) {
     preview: item.preview,
     types: item.types,
     stockQuantity: item.stockQuantity,
-    cover: item.cover,
+    imgs: item.imgs,
   }
 
   try {
