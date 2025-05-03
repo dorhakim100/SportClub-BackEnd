@@ -6,6 +6,8 @@ import { dbService } from '../../services/db.service.js'
 import { asyncLocalStorage } from '../../services/als.service.js'
 import { convertToDate } from '../../services/util.service.js'
 import { notifyService } from '../../services/notify.service.js'
+import { couponService } from '../coupon/coupon.service.js'
+import { userService } from '../user/user.service.js'
 
 export const paymentService = {
   getLink,
@@ -26,34 +28,94 @@ const Render_ErrorURL = 'https://sportclub-kfar.onrender/payment/error'
 const GoodURL = 'https://www.moadonsport.com/payment/success'
 const ErrorURL = 'https://www.moadonsport.com/payment/error'
 
-async function getLink(order) {
-  const cart = { items: order.items, amount: order.amount }
-
-  const paymentRequest = {
-    // terminal: process.env.PELECARD_TERMINAL_DEMO,
-    // user: process.env.PELECARD_USERNAME_DEMO,
-    // password: process.env.PELECARD_PASSWORD_DEMO,
-    terminal: process.env.PELECARD_TERMINAL,
-    user: process.env.PELECARD_USERNAME,
-    password: process.env.PELECARD_PASSWORD,
-    GoodURL: GoodURL,
-    ErrorURL: ErrorURL,
-    //
-    // GoodURL: Render_GoodURL,
-    // ErrorURL: Render_ErrorURL,
-    // demo urls ^
-    // GoodURL: 'http://localhost:5173/payment/success',
-    // ErrorURL: 'http://localhost:5173/payment/error',
-
-    UserKey: order.user.id,
-
-    ParamX: JSON.stringify(cart), // Sending the object of cart as a JSON string
-
-    Total: (order.amount * 100).toString(), // Amount in Agorot
-    Currency: '1',
-    ActionType: 'J4',
-  }
+async function getLink(order, loggedinUser) {
   try {
+    const returnedUser = await userService.getById(loggedinUser.id)
+    console.log(returnedUser)
+    const isMember =
+      returnedUser.memberStatus.isMember &&
+      returnedUser.memberStatus.expiry > Date.now()
+        ? true
+        : false
+    if (isMember) {
+      order.items.forEach((item) => {
+        if (item.types.includes('card')) {
+          const idx = order.items.findIndex(
+            (cartItem) => cartItem.id === item.id
+          )
+          let itemToModify = order.items[idx]
+
+          itemToModify = {
+            ...itemToModify,
+            price: 500,
+            isDiscount: true,
+          }
+          order.items.splice(idx, 1, itemToModify)
+        }
+      })
+    } else if (order.coupon && order.coupon !== '') {
+      const discount = await couponService.getDiscount(order.coupon)
+      order.items.forEach((item) => {
+        const matchedDiscountItem = discount.items.find(
+          (itemToCheck) => itemToCheck.id === item.id
+        )
+
+        if (!matchedDiscountItem) return // Skip if no match is found
+
+        const idx = order.items.findIndex((cartItem) => cartItem.id === item.id)
+        let itemToModify = order.items[idx]
+
+        if (discount.type === 'fixed') {
+          itemToModify = {
+            ...itemToModify,
+            price: itemToModify.price - discount.amount,
+            isDiscount: true,
+          }
+        }
+
+        if (discount.type === 'percentage') {
+          itemToModify = {
+            ...itemToModify,
+            price:
+              itemToModify.price - itemToModify.price * (discount.amount / 100),
+            isDiscount: true,
+          }
+        }
+
+        order.items.splice(idx, 1, itemToModify)
+      })
+    }
+    let total = 0
+    const cartTotal = order.items.reduce(
+      (accu, item) => accu + item.price * item.quantity,
+      total
+    )
+    const cart = { items: order.items, amount: cartTotal }
+
+    const paymentRequest = {
+      // terminal: process.env.PELECARD_TERMINAL_DEMO,
+      // user: process.env.PELECARD_USERNAME_DEMO,
+      // password: process.env.PELECARD_PASSWORD_DEMO,
+      terminal: process.env.PELECARD_TERMINAL,
+      user: process.env.PELECARD_USERNAME,
+      password: process.env.PELECARD_PASSWORD,
+      GoodURL: GoodURL,
+      ErrorURL: ErrorURL,
+      //
+      // GoodURL: Render_GoodURL,
+      // ErrorURL: Render_ErrorURL,
+      // demo urls ^
+      // GoodURL: 'http://localhost:5173/payment/success',
+      // ErrorURL: 'http://localhost:5173/payment/error',
+
+      UserKey: order.user.id,
+
+      ParamX: JSON.stringify(cart), // Sending the object of cart as a JSON string
+
+      Total: (order.amount * 100).toString(), // Amount in Agorot
+      Currency: '1',
+      ActionType: 'J4',
+    }
     const response = await fetch(
       'https://gateway21.pelecard.biz/PaymentGW/init',
       {
