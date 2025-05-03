@@ -54,7 +54,7 @@ export async function getCartItems(req, res) {
 
     res.json(cartToReturn)
   } catch (err) {
-    console.log(err)
+    // console.log(err)
   }
 }
 

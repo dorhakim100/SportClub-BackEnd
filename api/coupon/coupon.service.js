@@ -129,7 +129,7 @@ async function getDiscount(couponCode) {
       throw new Error(`Couldn't find coupon`)
     }
   } catch (err) {
-    console.log(err)
+    // console.log(err)
     throw err
   }
 }

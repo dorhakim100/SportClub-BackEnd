@@ -28,15 +28,19 @@ async function login(
   try {
     if (isGoogle) {
       const googleUser = await userService.getByUsername(emailOrUsername)
+
       if (googleUser) {
         delete googleUser.password
         googleUser._id = googleUser._id.toString()
         googleUser.imgUrl = imgUrl
         await userService.update({ ...googleUser, imgUrl: imgUrl })
+        logger.debug(
+          `auth.service - login with Google, emailOrUsername: ${emailOrUsername}`
+        )
         return googleUser
       } else {
         const isAdmin = emailOrUsername === (SERVICE || MANAGER) ? true : false
-        return userService.add({
+        return await userService.add({
           username: emailOrUsername,
           fullname: fullname,
           isAdmin: isAdmin,
@@ -75,7 +79,7 @@ async function login(
     user.imgUrl = imgUrl
     return user
   } catch (err) {
-    console.log(err)
+    // console.log(err)
     throw err
   }
 }
@@ -116,7 +120,7 @@ async function signup({
       memberStatus,
     })
   } catch (err) {
-    console.log(err)
+    // console.log(err)
     throw err
   }
 }
@@ -140,7 +144,7 @@ function validateToken(loginToken) {
     const loggedinUser = JSON.parse(json)
     return loggedinUser
   } catch (err) {
-    console.log('Invalid login token')
+    // console.log('Invalid login token')
   }
   return null
 }

@@ -31,7 +31,7 @@ export async function getOccurrences(req, res) {
 
     res.json(occurrences)
   } catch (err) {
-    console.log(err)
+    // console.log(err)
     throw err
   }
 }
@@ -61,7 +61,7 @@ export async function getClassTrainers(req, res) {
 
     res.json(trainers)
   } catch (err) {
-    console.log(err)
+    // console.log(err)
     throw err
   }
 }
