@@ -31,7 +31,7 @@ const ErrorURL = 'https://www.moadonsport.com/payment/error'
 async function getLink(order, loggedinUser) {
   try {
     const returnedUser = await userService.getById(loggedinUser.id)
-    console.log(returnedUser)
+
     const isMember =
       returnedUser.memberStatus.isMember &&
       returnedUser.memberStatus.expiry > Date.now()
