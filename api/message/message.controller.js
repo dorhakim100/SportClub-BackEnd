@@ -28,7 +28,7 @@ export async function getOpenMessages(req, res) {
     const length = await messageService.queryOpen()
     res.json(length)
   } catch (err) {
-    console.log(err)
+    // console.log(err)
     throw err
   }
 }

@@ -26,7 +26,7 @@ export async function getUser(req, res) {
 export async function getRememberedMeUser(req, res) {
   try {
     const requiredId = req.params.id
-    console.log(requiredId)
+    // console.log(requiredId)
     const user = await userService.getById(req.params.id)
     if (!user) {
       return res.status(404).send({ err: 'User not found' })

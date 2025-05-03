@@ -68,7 +68,6 @@ async function queryCart(cart) {
       .toArray()
 
     const itemsToReturn = cart.map((item) => {
-      console.log(item)
       const currItem = itemsFromCollection.find(
         (itemToFind) => itemToFind.id.toString() === item.id
       )

@@ -147,9 +147,9 @@ async function getOccurrences(filter) {
               name: trainerData[0].name,
             }
           } else {
-            console.log(
-              `No trainer found for occurrence: ${JSON.stringify(occur)}`
-            )
+            // console.log(
+            //   `No trainer found for occurrence: ${JSON.stringify(occur)}`
+            // )
           }
 
           allOccurrences.push(occur)
@@ -166,7 +166,7 @@ async function getOccurrences(filter) {
 
     return allOccurrences
   } catch (err) {
-    console.log(err)
+    // console.log(err)
     throw err
   }
 }
@@ -204,7 +204,7 @@ async function getById(classId, filter) {
           name: trainerData[0].name,
         }
       } else {
-        console.log(`No trainer found for occurrence: ${JSON.stringify(occur)}`)
+        // console.log(`No trainer found for occurrence: ${JSON.stringify(occur)}`)
       }
     }
 
@@ -237,7 +237,7 @@ async function getTrainers(classId) {
 
     return trainers
   } catch (err) {
-    console.log(err)
+    // console.log(err)
     throw err
   }
 }

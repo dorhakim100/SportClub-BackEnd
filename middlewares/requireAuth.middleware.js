@@ -4,6 +4,7 @@ import { asyncLocalStorage } from '../services/als.service.js'
 
 export function requireAuth(req, res, next) {
   const { loggedinUser } = asyncLocalStorage.getStore()
+
   req.loggedinUser = loggedinUser
 
   // if (config.isGuestMode && !loggedinUser) {

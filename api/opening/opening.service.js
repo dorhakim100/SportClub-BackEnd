@@ -35,7 +35,7 @@ async function update(daysToUpdate) {
 
     const bulkOps = days.map((day) => {
       const dayToUpdate = daysToUpdate.find((d) => d._id === day._id.toString())
-      console.log(dayToUpdate)
+
       if (dayToUpdate) {
         const currId = dayToUpdate._id
         delete dayToUpdate._id

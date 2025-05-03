@@ -227,7 +227,7 @@ async function saveUpdatesOrder(reordered) {
     )
     return reordered
   } catch (err) {
-    console.log(err)
+    // console.log(err)
     throw err
   }
 }
