@@ -3,7 +3,7 @@ import { paymentService } from './payment.services.js'
 
 export async function initiatePayment(req, res) {
   try {
-    const { amount, orderId, goodUrl, badUrl, user, items } = req.body
+    const { amount, orderId, goodUrl, badUrl, user, items, coupon } = req.body
     const order = {
       amount,
       orderId,
@@ -11,12 +11,13 @@ export async function initiatePayment(req, res) {
       badUrl,
       user,
       items,
+      coupon,
     }
     const loggedinUser = req.body.user
 
     if (!loggedinUser) return res.status(401).send('Not Authenticated')
 
-    const response = await paymentService.getLink(order)
+    const response = await paymentService.getLink(order, loggedinUser)
 
     if (response && response.URL) {
       res.status(200).json({ paymentUrl: response.URL })
