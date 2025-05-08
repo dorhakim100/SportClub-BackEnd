@@ -151,47 +151,61 @@ async function savePayment(payment) {
       pelecardTransactionId: payment.pelecardTransactionId,
     })
 
-    if (!isExists) {
-      let count = await collection.countDocuments() // Efficient way to get the document count
+    if (isExists) throw new Error('Failed to save payment')
 
-      const orderNum = ++count
+    let count = await collection.countDocuments() // Efficient way to get the document count
+    const countLength = count.toString().length
+    let orderNum = ++count
+    switch (countLength) {
+      case 1:
+        orderNum = '000' + count
+        break
+      case 2:
+        orderNum = '00' + count
+        break
+      case 3:
+        orderNum = '0' + count
+        break
 
-      const userCollection = await dbService.getCollection('user')
-
-      const userIdCriteria = {
-        _id: ObjectId.createFromHexString(payment.userId),
-      }
-
-      const user = await userCollection.findOne(userIdCriteria)
-
-      const paymentToSave = {
-        ...payment,
-        orderNum: orderNum,
-        createdAt: Date.now(),
-        isReady: false,
-        user: {
-          id: payment.userId,
-          fullname: user.fullname,
-          phone: user.phone,
-        },
-      }
-      delete paymentToSave.userId
-
-      const result = await collection.insertOne(paymentToSave)
-      const stringPaymentId = result.insertedId.toString()
-
-      const ordersIds = user.ordersIds
-      ordersIds.unshift(stringPaymentId)
-      const userToReturn = { ...user, items: [], ordersIds: ordersIds }
-
-      const updatedUser = await userCollection.updateOne(userIdCriteria, {
-        $set: { ordersIds: userToReturn.ordersIds },
-        $set: { items: [] },
-      })
-      // delete userToReturn.password
-      // return userToReturn
-      return paymentToSave
+      default:
+        break
     }
+
+    const userCollection = await dbService.getCollection('user')
+
+    const userIdCriteria = {
+      _id: ObjectId.createFromHexString(payment.userId),
+    }
+
+    const user = await userCollection.findOne(userIdCriteria)
+
+    const paymentToSave = {
+      ...payment,
+      orderNum: orderNum,
+      createdAt: Date.now(),
+      isReady: false,
+      user: {
+        id: payment.userId,
+        fullname: user.fullname,
+        phone: user.phone,
+      },
+    }
+    delete paymentToSave.userId
+
+    const result = await collection.insertOne(paymentToSave)
+    const stringPaymentId = result.insertedId.toString()
+
+    const ordersIds = user.ordersIds
+    ordersIds.unshift(stringPaymentId)
+    const userToReturn = { ...user, items: [], ordersIds: ordersIds }
+
+    const updatedUser = await userCollection.updateOne(userIdCriteria, {
+      $set: { ordersIds: userToReturn.ordersIds },
+      $set: { items: [] },
+    })
+    // delete userToReturn.password
+    // return userToReturn
+    return paymentToSave
   } catch (err) {
     console.error('Error saving payment:', err)
     throw new Error('Failed to save payment')
@@ -413,15 +427,15 @@ async function update(paymentToSave) {
     await collection.updateOne(paymentIdCriteria, {
       $set: { ...paymentToSave, items: originalItems },
     })
-    // if(paymentToSave.isReady && !paymentToSave.isDelivered){
-    // const message = `hey ${paymentToSave.user.fullname}`
+    if (paymentToSave.isReady && !paymentToSave.isDelivered) {
+      const name = `${paymentToSave.user.fullname}`
 
-    //   notifyService.sendWhatsAppNotification(
-    //     message,
-    //     process.env.ADMIN_WHATSAPP_FROM,
-    //     paymentToSave.user.phone
-    //   )
-    // }
+      notifyService.sendWhatsAppNotification(
+        { name, orderNumber: paymentToSave.orderNum },
+        process.env.ADMIN_WHATSAPP_FROM,
+        paymentToSave.user.phone
+      )
+    }
     return paymentToSave
   } catch (err) {
     console.error('Error updating payment status:', err)

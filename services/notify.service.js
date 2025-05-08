@@ -7,19 +7,27 @@ const client = new Twilio(
   process.env.TWILIO_AUTH_TOKEN
 )
 
+const TEMPLATE_ID = 'HX717db81c00f958fb3d38be18d095343c'
+
 export const notifyService = {
   sendWhatsAppNotification,
 }
 
-async function sendWhatsAppNotification(body, from, to) {
+// HXfbd89124d5dc830a96bb857acccb4dcb
+async function sendWhatsAppNotification(order, from, to) {
   try {
     const modifiedTo = `whatsapp:${normalizeIsraeliNumber(to)}`
-    console.log(from)
-    console.log(modifiedTo)
+    // const modifiedTo = `whatsapp:${'+972508833262'}`
+    const { name, orderNumber } = order
+
     await client.messages.create({
-      from,
       to: modifiedTo,
-      body,
+      from,
+      contentSid: TEMPLATE_ID,
+      contentVariables: JSON.stringify({
+        name: `${name}`,
+        num: `${orderNumber}`,
+      }),
     })
   } catch (err) {
     console.error('Twilio error:', err)
