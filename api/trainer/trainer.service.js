@@ -7,7 +7,7 @@ import { asyncLocalStorage } from '../../services/als.service.js'
 
 const PAGE_SIZE = 6
 const DEFAULT_IMG =
-  'https://res.cloudinary.com/dnxi70mfs/image/upload/v1730047839/blank-profile-picture-973460_1280_jidp6j.webp'
+  'https://ik.imagekit.io/n4mhohkzp/blank-profile-picture.webp?updatedAt=1755684200284'
 export const trainerService = {
   remove,
   query,

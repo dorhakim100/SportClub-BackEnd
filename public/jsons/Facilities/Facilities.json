@@ -1,6 +1,6 @@
 [
   {
-    "img": "/imgs/facilities-pool.webp",
+    "img": "https://ik.imagekit.io/n4mhohkzp/facilities-pool.webp?updatedAt=1755684221898",
     "type": "pool",
     "title": {
       "he": "בריכת השחייה",
@@ -13,7 +13,7 @@
   },
 
   {
-    "img": "https://res.cloudinary.com/dnxi70mfs/image/upload/v1752232813/openart-using-the-exact-same-photo-of-a-modern-indoor-gym-add-realistic-high-resol_1_f678bk.jpg",
+    "img": "https://ik.imagekit.io/n4mhohkzp/facilities-gym.jpg?updatedAt=1755684226398",
     "type": "gym",
     "title": {
       "he": "חדר הכושר",
@@ -26,7 +26,7 @@
   },
 
   {
-    "img": "https://res.cloudinary.com/dnxi70mfs/image/upload/v1732805466/DSC06068_qor0tr.jpg",
+    "img": "https://ik.imagekit.io/n4mhohkzp/facilities-tennis.webp?updatedAt=1755684224537",
     "type": "tennis",
     "title": {
       "he": "מגרשי הטניס",
@@ -39,7 +39,7 @@
   },
 
   {
-    "img": "https://res.cloudinary.com/dnxi70mfs/image/upload/v1752232819/openart-using-the-exact-same-image-of-the-fitness-studio-with-mirrors-wooden-floor_i0uorx.jpg",
+    "img": "https://ik.imagekit.io/n4mhohkzp/mouse-wheel-studio.jpg?updatedAt=1755684312836",
     "type": "classes",
     "title": {
       "he": "סטודיו חוגים",
@@ -52,7 +52,7 @@
   },
 
   {
-    "img": "https://res.cloudinary.com/dnxi70mfs/image/upload/v1736865230/DJI_0514_result_n880z3.webp",
+    "img": "https://ik.imagekit.io/n4mhohkzp/facilities-golf.webp?updatedAt=1755684221711",
     "type": "miniGolf",
     "title": {
       "he": "מתחם מיני גולף",
@@ -65,7 +65,7 @@
   },
 
   {
-    "img": "https://res.cloudinary.com/dnxi70mfs/image/upload/v1731946217/DSC06444_pmpgpf.jpg",
+    "img": "https://ik.imagekit.io/n4mhohkzp/mouse-wheel-snokball.webp?updatedAt=1755684296019",
     "type": "snookball",
     "title": {
       "he": "מגרש סנוקרגל",
@@ -78,7 +78,7 @@
   },
 
   {
-    "img": "https://res.cloudinary.com/dnxi70mfs/image/upload/v1731946219/DSC06189_yuuula.jpg",
+    "img": "https://ik.imagekit.io/n4mhohkzp/mouse-wheel-restaurant.webp?updatedAt=1755684295594",
     "type": "restaurant",
     "title": {
       "he": "מסעדה כפרית",
@@ -91,7 +91,7 @@
   },
 
   {
-    "img": "https://res.cloudinary.com/dnxi70mfs/image/upload/v1733325433/WhatsApp_Image_2024-10-29_at_16.16.41_1_2_rvht4i.jpg",
+    "img": "https://ik.imagekit.io/n4mhohkzp/activities-summer-camp-carousel-1.webp?updatedAt=1755684191491",
     "type": "activities",
     "title": {
       "he": "חוויות לילדים",
@@ -116,7 +116,7 @@
     }
   },
   {
-    "img": "https://res.cloudinary.com/dnxi70mfs/image/upload/v1732274704/DSC09047_gxxqfy.jpg",
+    "img": "https://ik.imagekit.io/n4mhohkzp/mouse-wheel-parking.webp?updatedAt=1755684294783",
     "type": "parking",
     "title": {
       "he": "מגרש חניה",
