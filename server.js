@@ -17,6 +17,8 @@ import { openingRoutes } from './api/opening/opening.routes.js'
 // import { jsonRoutes } from './api/json/json.routes.js'
 import { setupSocketAPI } from './services/socket.service.js'
 
+// import { handleSpamUsers } from './services/spam.service.js'
+
 import { setupAsyncLocalStorage } from './middlewares/setupAls.middleware.js'
 const app = express()
 const server = http.createServer(app)
@@ -53,6 +55,8 @@ app.use('/api/payment', paymentRoutes)
 app.use('/api/opening', openingRoutes)
 // app.use('/api/json', jsonRoutes)
 
+app.set('trust proxy', 1)
+
 setupSocketAPI(server)
 
 // Make every unhandled server-side-route match index.html
@@ -71,30 +75,3 @@ const port = process.env.PORT || 3030
 server.listen(port, () => {
   logger.info('Server is running on port: ' + port)
 })
-
-// import { dbService } from './services/db.service.js'
-// import { ObjectId } from 'mongodb'
-
-//handleSpamUsers()
-
-// async function handleSpamUsers() {
-//   try {
-//     const collection = await dbService.getCollection('user')
-//     const fromId = new ObjectId('68cd45095e06b3df2e6f148f')
-//     const toId = new ObjectId('68cd4c995e06b3df2e6f164a')
-
-//     const users = await collection
-//       .find({
-//         _id: { $gte: fromId, $lte: toId },
-//         // verified: false,
-//       })
-//       .toArray()
-//     console.log(users.length)
-
-//     collection.deleteMany({
-//       _id: { $gte: fromId, $lte: toId },
-//     })
-//   } catch (err) {
-//     logger.error('Failed to handle spam users', err)
-//   }
-// }
