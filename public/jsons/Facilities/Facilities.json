@@ -11,9 +11,8 @@
       "eng": "Our semi-Olympic swimming pool is operated with high standards, filled from the village natural water wells, ensuring maximum quality. The pool is fully shaded and the water temperature remains constant throughout the entire year. Swimming School - Eran Groumi, an Olympic swimmer and member of Israel Swimming Association, manages the Swimming School. Swimming classes are available for all ages."
     }
   },
-
   {
-    "img": "https://ik.imagekit.io/n4mhohkzp/facilities-gym.jpg?updatedAt=1755684226398",
+    "img": "https://ik.imagekit.io/n4mhohkzp/facilities-gym.jpg.png",
     "type": "gym",
     "title": {
       "he": "חדר הכושר",
@@ -24,7 +23,6 @@
       "eng": "In our gym you'll find high end advanced equipment .Our team of professional trainers offer professional guidance for every member and make the whole work out experience exciting, fun, effective and personal."
     }
   },
-
   {
     "img": "https://ik.imagekit.io/n4mhohkzp/facilities-tennis.webp?updatedAt=1755684224537",
     "type": "tennis",
@@ -37,9 +35,8 @@
       "eng": "In the club, we have three high-end tennis courts for free play available for club members during the whole day and week.\n        Tennis school – Yuri Kovalenco and Anna Berlin, leading tennis instructors in Israel, manage the Tennis School offering lessons for all ages."
     }
   },
-
   {
-    "img": "https://ik.imagekit.io/n4mhohkzp/mouse-wheel-studio.jpg?updatedAt=1755684312836",
+    "img": "https://ik.imagekit.io/n4mhohkzp/mouse-wheel-studio.jpg",
     "type": "classes",
     "title": {
       "he": "סטודיו חוגים",
@@ -50,7 +47,6 @@
       "eng": "We provide a wide variety of classes in small groups (up to 15 people) including TRX, Zumba, Aquatic Fitness, Yoga, Pilates, Body Shaping, Health Fitness, Feldenkrais and Holistic Shaping. All classes are instructed by professional trainers with a personal touch."
     }
   },
-
   {
     "img": "https://ik.imagekit.io/n4mhohkzp/facilities-golf.webp?updatedAt=1755684221711",
     "type": "miniGolf",
@@ -63,7 +59,6 @@
       "eng": "We invite you to enjoy a fun and unique mini golf course featuring 8 creative tracks, designed for all ages. Nestled in the heart of our sports club, the course offers a blend of sports, leisure, and entertainment for the entire family.\n\n        Each track is carefully crafted with imaginative and challenging obstacles, ensuring an exciting and engaging experience."
     }
   },
-
   {
     "img": "https://ik.imagekit.io/n4mhohkzp/mouse-wheel-snokball.webp?updatedAt=1755684296019",
     "type": "snookball",
@@ -76,9 +71,8 @@
       "eng": "Discover the exciting new experience at our sports club – a Snooker Football Court! A perfect combination of precision, strategy, and fun for all ages.\n\n        The court is specially designed to resemble a giant snooker table, where football replaces traditional snooker balls. The goal: aim, kick, and pocket the oversized balls just like in classic snooker.\n        \n        This innovative and challenging activity is a perfect way to elevate your visit to the club."
     }
   },
-
   {
-    "img": "https://ik.imagekit.io/n4mhohkzp/mouse-wheel-restaurant.webp?updatedAt=1755684295594",
+    "img": "https://ik.imagekit.io/n4mhohkzp/mouse-wheel-restaurant.jpg",
     "type": "restaurant",
     "title": {
       "he": "מסעדה כפרית",
@@ -89,7 +83,6 @@
       "eng": "In the heart of the club you'll find our restaurant, open all year long and serves healthy and tasty food for the whole family."
     }
   },
-
   {
     "img": "https://ik.imagekit.io/n4mhohkzp/activities-summer-camp-carousel-1.webp?updatedAt=1755684191491",
     "type": "activities",
@@ -102,9 +95,8 @@
       "eng": "For the kids we have a fun playground with swings and slides adjacent to a mini Tennis / Football / Basketball court.\n        During the summer, the kids can enjoy many fun attractions such as: kiddies pool, inflatables, juggling classes, magician classes and more."
     }
   },
-
   {
-    "img": "https://res.cloudinary.com/dnxi70mfs/image/upload/v1735902032/32_peuixp_1_zgafh8.webp",
+    "img": "https://ik.imagekit.io/n4mhohkzp/facilities-toddlers.jpg",
     "type": "toddlerPool",
     "title": {
       "he": "בריכת פעוטות",
