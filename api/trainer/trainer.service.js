@@ -8,6 +8,11 @@ import { asyncLocalStorage } from '../../services/als.service.js'
 const PAGE_SIZE = 6
 const DEFAULT_IMG =
   'https://ik.imagekit.io/n4mhohkzp/blank-profile-picture.webp?updatedAt=1755684200284'
+const DEFAULT_IMG_2 =
+  'https://res.cloudinary.com/dnxi70mfs/image/upload/v1730047839/blank-profile-picture-973460_1280_jidp6j.webp'
+
+const DEFAULT_IMGS = [DEFAULT_IMG, DEFAULT_IMG_2]
+
 export const trainerService = {
   remove,
   query,
@@ -26,7 +31,7 @@ async function query(filterBy = { txt: '' }) {
       { $match: criteria }, // Apply filter criteria
       {
         $addFields: {
-          isDefaultImg: { $eq: ['$img', DEFAULT_IMG] }, // Identify default images
+          isDefaultImg: { $in: ['$img', DEFAULT_IMGS] }, // Identify default images
         },
       },
       { $sort: { isDefaultImg: 1, name: 1 } }, // Sort by `isDefaultImg`, then by `name`
@@ -43,8 +48,9 @@ async function query(filterBy = { txt: '' }) {
       aggregationPipeline.push({ $skip: skip })
       aggregationPipeline.push({ $limit: limit })
     } else if (filterBy.isRandom) {
+      logger.info('DEFAULT_IMGS', DEFAULT_IMGS)
       aggregationPipeline.push({
-        $match: { img: { $ne: DEFAULT_IMG } },
+        $match: { img: { $nin: DEFAULT_IMGS } },
       })
       aggregationPipeline.push({ $sample: { size: limit } })
     }
