@@ -14,6 +14,7 @@ import { trainerRoutes } from './api/trainer/trainer.routes.js'
 import { updateRoutes } from './api/update/update.routes.js'
 import { paymentRoutes } from './api/payment/payment.routes.js'
 import { openingRoutes } from './api/opening/opening.routes.js'
+import { slotRoutes } from './api/slot/slot.routes.js'
 // import { jsonRoutes } from './api/json/json.routes.js'
 import { setupSocketAPI } from './services/socket.service.js'
 
@@ -53,6 +54,7 @@ app.use('/api/trainer', trainerRoutes)
 app.use('/api/update', updateRoutes)
 app.use('/api/payment', paymentRoutes)
 app.use('/api/opening', openingRoutes)
+app.use('/api/slot', slotRoutes)
 // app.use('/api/json', jsonRoutes)
 
 app.set('trust proxy', 1)
