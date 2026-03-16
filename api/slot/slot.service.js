@@ -5,7 +5,7 @@ import { dbService } from '../../services/db.service.js'
 import { asyncLocalStorage } from '../../services/als.service.js'
 
 const FACILITIES = ['pool', 'gym']
-const DEFAULT_CAPACITY = 12
+const DEFAULT_CAPACITY = 8
 
 export const slotService = {
   query,
