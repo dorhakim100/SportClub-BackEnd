@@ -17,6 +17,7 @@ import { openingRoutes } from './api/opening/opening.routes.js'
 import { slotRoutes } from './api/slot/slot.routes.js'
 // import { jsonRoutes } from './api/json/json.routes.js'
 import { setupSocketAPI } from './services/socket.service.js'
+import { setupSlotScheduler } from './services/slotScheduler.service.js'
 
 // import { handleSpamUsers } from './services/spam.service.js'
 
@@ -60,6 +61,7 @@ app.use('/api/slot', slotRoutes)
 app.set('trust proxy', 1)
 
 setupSocketAPI(server)
+setupSlotScheduler()
 
 // Make every unhandled server-side-route match index.html
 // so when requesting http://localhost:3030/unhandled-route...
