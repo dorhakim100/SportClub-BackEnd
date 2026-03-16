@@ -57,6 +57,10 @@ export function setupSocketAPI(http) {
       logger.info(`Removing socket.userId for socket [id: ${socket.id}]`)
       delete socket.userId
     })
+    socket.on('make-slot-registered', (slot) => {
+      logger.info(`Slot registered from socket [id: ${socket.id}]`)
+      gIo.emit('add-slot-registered', slot)
+    })
   })
 }
 

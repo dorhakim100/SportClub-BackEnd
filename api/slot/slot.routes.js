@@ -13,7 +13,7 @@ const router = express.Router()
 
 router.get('/',getSlots)
 router.post('/', requireAdmin, createSlot)
-router.post('/:id/register', registerToSlot)
+router.put('/:id/register', registerToSlot)
 
 export const slotRoutes = router
 
