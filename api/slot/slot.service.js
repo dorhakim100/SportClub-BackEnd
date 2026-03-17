@@ -11,6 +11,7 @@ export const slotService = {
   query,
   create,
   register,
+  update,
 }
 
 async function query(filterBy = {}) {
@@ -102,6 +103,23 @@ async function register(slotId,name,phone) {
     }
   } catch (err) {
     logger.error(`cannot register to slot ${slotId}`, err)
+    throw err
+  }
+}
+
+async function update(slotId, slot) {
+  try {
+    const collection = await dbService.getCollection('slot')
+    const _id = ObjectId.createFromHexString(slotId)
+
+    const slotToSave = { ...slot }
+    delete slotToSave._id
+
+    await collection.updateOne({ _id }, { $set: slotToSave })
+
+    return { _id: slotId, ...slotToSave }
+  } catch (err) {
+    logger.error(`cannot update slot ${slotId}`, err)
     throw err
   }
 }

@@ -40,3 +40,16 @@ export async function registerToSlot(req, res) {
   }
 }
 
+export async function updateSlot(req, res) {
+  try {
+    const slotId = req.params.id
+    const slot = req.body
+    const updatedSlot = await slotService.update(slotId, slot)
+    res.json(updatedSlot)
+  } catch (err) {
+    logger.error('Failed to update slot', err)
+    res.status(400).send({ err: err.message || 'Failed to update slot' })
+  }
+}
+
+

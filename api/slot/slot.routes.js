@@ -7,13 +7,15 @@ import {
   getSlots,
   createSlot,
   registerToSlot,
+  updateSlot,
 } from './slot.controller.js'
 
 const router = express.Router()
 
-router.get('/',getSlots)
+router.get('/', getSlots)
 router.post('/', requireAdmin, createSlot)
 router.put('/:id/register', registerToSlot)
+router.put('/:id', requireAdmin, updateSlot)
 
 export const slotRoutes = router
 
