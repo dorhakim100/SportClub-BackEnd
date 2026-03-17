@@ -9,6 +9,7 @@ export const openingService = {
   query,
 
   update,
+  findByDayIndex,
 }
 
 async function query(filterBy = {}) {
@@ -55,6 +56,19 @@ async function update(daysToUpdate) {
   } catch (err) {
     logger.error('cannot update opening times', err)
     throw err
+  }
+}
+
+async function findByDayIndex(dayIndex) {
+  try {
+    const collection = await dbService.getCollection('opening')
+    const opening = await collection.findOne({ index: dayIndex })
+    return opening
+    
+  } catch (err) {
+    logger.error('cannot find opening by day index', err)
+    throw err
+    
   }
 }
 

@@ -24,11 +24,14 @@ function getHourAhead(hoursAhead = 24) {
   return target
 }
 
+createDefaultSlotsForHour('2026-03-18T15:00:00.000Z')
+
 async function createDefaultSlotsForHour(startTime) {
   try {
     const dayIndex = new Date(startTime).getDay()
+    logger.info('Creating default slots for day', { dayIndex })
 
-    const opening = await openingService.query({ index: dayIndex })
+    const opening = await openingService.findByDayIndex(dayIndex)
 
 
     const poolTimes = opening.times.pool
