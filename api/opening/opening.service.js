@@ -11,9 +11,9 @@ export const openingService = {
   update,
 }
 
-async function query() {
+async function query(filterBy = {}) {
   try {
-    const criteria = _buildCriteria()
+    const criteria = _buildCriteria(filterBy)
     const sort = _buildSort()
 
     const collection = await dbService.getCollection('opening')
@@ -58,8 +58,12 @@ async function update(daysToUpdate) {
   }
 }
 
-function _buildCriteria() {
+function _buildCriteria(filterBy = {}) {
   const criteria = {}
+
+  if (filterBy.index !== undefined) { // index can be 0
+    criteria.index = filterBy.index
+  }
 
   return criteria
 }

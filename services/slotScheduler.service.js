@@ -2,6 +2,17 @@ import cron from 'node-cron'
 
 import { slotService } from '../api/slot/slot.service.js'
 import { logger } from './logger.service.js'
+import { openingService } from '../api/opening/opening.service.js'
+
+export function setupSlotScheduler() {
+  // Run at minute 0 of every hour
+  cron.schedule('0 * * * *', async () => {
+    const startTime = getHourAhead(24)
+    logger.info('Auto-creating slots for hour', { startTime })
+    await createDefaultSlotsForHour(startTime)
+  })
+}
+
 
 function getHourAhead(hoursAhead = 24) {
   const now = new Date()
@@ -15,8 +26,47 @@ function getHourAhead(hoursAhead = 24) {
 
 async function createDefaultSlotsForHour(startTime) {
   try {
-    await slotService.create({ facility: 'pool', startTime })
-    await slotService.create({ facility: 'gym', startTime })
+    const dayIndex = new Date(startTime).getDay()
+
+    const opening = await openingService.query({ index: dayIndex })
+
+
+    const poolTimes = opening.times.pool
+    const gymTimes = opening.times.gym
+
+    let shouldCreatePoolSlot = false
+    let shouldCreateGymSlot = false
+
+    const hour = new Date(startTime).getHours()
+
+    poolTimes.forEach((time) => {
+      const fromHour = +time.from.split(':')[0]
+      const toHour = +time.to.split(':')[0]
+
+        if (hour >= fromHour && hour < toHour) {
+          shouldCreatePoolSlot = true
+
+      }
+    })
+
+    gymTimes.forEach((time) => {
+      const fromHour = +time.from.split(':')[0]
+      const toHour = +time.to.split(':')[0]
+
+        if (hour >= fromHour && hour < toHour) {
+          shouldCreateGymSlot = true
+        }
+
+    })
+
+    if (shouldCreatePoolSlot) {
+      await slotService.create({ facility: 'pool', startTime })
+      logger.info('Created pool slot for hour', { startTime })
+    }
+    if (shouldCreateGymSlot) {
+      await slotService.create({ facility: 'gym', startTime })
+      logger.info('Created gym slot for hour', { startTime })
+    }
   } catch (err) {
     logger.error('Failed to auto-create slots for hour', {
       err,
@@ -25,12 +75,4 @@ async function createDefaultSlotsForHour(startTime) {
   }
 }
 
-export function setupSlotScheduler() {
-  // Run at minute 0 of every hour
-  cron.schedule('0 * * * *', async () => {
-    const startTime = getHourAhead(24)
-    logger.info('Auto-creating slots for hour', { startTime })
-    await createDefaultSlotsForHour(startTime)
-  })
-}
 
