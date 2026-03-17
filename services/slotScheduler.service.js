@@ -3,6 +3,7 @@ import cron from 'node-cron'
 import { slotService } from '../api/slot/slot.service.js'
 import { logger } from './logger.service.js'
 import { openingService } from '../api/opening/opening.service.js'
+import { socketService } from './socket.service.js'
 
 export function setupSlotScheduler() {
   // Run at minute 0 of every hour
@@ -23,8 +24,6 @@ function getHourAhead(hoursAhead = 24) {
   const target = new Date(nextHour.getTime() + (hoursAhead - 1) * 60 * 60 * 1000)
   return target
 }
-
-createDefaultSlotsForHour('2026-03-18T15:00:00.000Z')
 
 async function createDefaultSlotsForHour(startTime) {
   try {
@@ -70,6 +69,7 @@ async function createDefaultSlotsForHour(startTime) {
       await slotService.create({ facility: 'gym', startTime })
       logger.info('Created gym slot for hour', { startTime })
     }
+    socketService.emitTo({ type: 'add-slot', data: { startTime } })
   } catch (err) {
     logger.error('Failed to auto-create slots for hour', {
       err,

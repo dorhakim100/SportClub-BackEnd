@@ -61,10 +61,14 @@ export function setupSocketAPI(http) {
       logger.info(`Slot registered from socket [id: ${socket.id}]`)
       gIo.emit('add-slot-registered', slot)
     })
+    socket.on('scheduled-slot', (startTime) => {
+      logger.info(`Broadcast scheduled slot from socket [id: ${socket.id}]`)
+      gIo.emit('add-slot', startTime)
+    })
   })
 }
 
-function emitTo({ type, data, label }) {
+export function emitTo({ type, data, label }) {
   if (label) gIo.to('watching:' + label.toString()).emit(type, data)
   else gIo.emit(type, data)
 }
