@@ -11,6 +11,7 @@ export const slotService = {
   query,
   create,
   createGarumiSlot,
+  createGarumiGymSlot,
   register,
   update,
 }
@@ -95,6 +96,34 @@ async function createGarumiSlot({ startTime }) {
 
   } catch (err) {
     logger.error('cannot create garumi slot', err)
+    throw err
+  }
+}
+async function createGarumiGymSlot({ startTime }) {
+  try {
+    const collection = await dbService.getCollection('slot')
+
+    const start = new Date(startTime)
+    if (isNaN(start.getTime())) {
+      throw new Error('Invalid startTime')
+    }
+
+
+    const existing = await collection.findOne({
+      facility: 'gym',
+      startTime: start,
+      date: start.toISOString().split('T')[0],
+    })
+
+    if (existing) return existing
+
+    const slotToSave = _buildGarumiGymSlotToSave(startTime)
+
+    await collection.insertOne(slotToSave)
+    return slotToSave
+
+  } catch (err) {
+    logger.error('cannot create garumi gym slot', err)
     throw err
   }
 }
@@ -198,6 +227,23 @@ function _buildGarumiSlotToSave(startTime) {
 
   return {
     facility: 'pool',
+    startTime: new Date(startTime),
+    endTime: new Date(startTime.getTime() + 1 * 60 * 60 * 1000), // 1 hour
+    capacity: DEFAULT_CAPACITY,
+    registrations: registrations,
+    date: startTime.toISOString().split('T')[0],
+  }
+}
+function _buildGarumiGymSlotToSave(startTime) {
+
+  const registrations = [
+    { name: 'Garumi', phone: '0525658565' },
+    { name: 'Garumi', phone: '0525658565' },
+
+  ]
+
+  return {
+    facility: 'gym',
     startTime: new Date(startTime),
     endTime: new Date(startTime.getTime() + 1 * 60 * 60 * 1000), // 1 hour
     capacity: DEFAULT_CAPACITY,

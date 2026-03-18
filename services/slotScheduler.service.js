@@ -58,7 +58,7 @@ async function createDefaultSlotsForHour(startTime) {
 
       const isSaturday = dayIndex === 6
 
-      if(!isSaturday && (fromHour === 7 || fromHour === 8 || fromHour === 9)) {
+      if(!isSaturday && (fromHour === 7 || fromHour === 8)) {
         isGarumiSlot = true
       }
 
@@ -69,20 +69,26 @@ async function createDefaultSlotsForHour(startTime) {
     })
 
     if (shouldCreatePoolSlot) {
-
-      if(isGarumiSlot){
-        await slotService.createGarumiSlot({  startTime })
-        logger.info('Created Garumi slot for hour', { startTime })
+        if(isGarumiSlot){
+          await slotService.createGarumiSlot({  startTime })
+          logger.info('Created Garumi slot for hour', { startTime })
+          
+        } else {
+          await slotService.create({ facility: 'pool', startTime })
+          logger.info('Created pool slot for hour', { startTime })
+        }
         
-      } else {
-        await slotService.create({ facility: 'pool', startTime })
-        logger.info('Created pool slot for hour', { startTime })
       }
-    }
-    if (shouldCreateGymSlot) {
-      await slotService.create({ facility: 'gym', startTime })
-      logger.info('Created gym slot for hour', { startTime })
-    }
+      if (shouldCreateGymSlot) {
+        if(isGarumiSlot){
+          await slotService.createGarumiGymSlot({  startTime })
+          logger.info('Created Garumi slot for hour', { startTime })
+          
+        } else {
+          await slotService.create({ facility: 'gym', startTime })
+          logger.info('Created gym slot for hour', { startTime })
+        }
+      }
     socketService.emitTo({ type: 'add-slot', data: { startTime } })
   } catch (err) {
     logger.error('Failed to auto-create slots for hour', {
