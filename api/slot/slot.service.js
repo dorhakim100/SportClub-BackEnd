@@ -3,6 +3,7 @@ import { ObjectId } from 'mongodb'
 import { logger } from '../../services/logger.service.js'
 import { dbService } from '../../services/db.service.js'
 import { asyncLocalStorage } from '../../services/als.service.js'
+import { normalizeDateToYMD } from '../../services/util.service.js'
 
 const FACILITIES = ['pool', 'gym']
 const DEFAULT_CAPACITY = 8
@@ -18,6 +19,7 @@ export const slotService = {
 
 async function query(filterBy = {}) {
   try {
+    logger.info('filterBy', filterBy)
     const criteria = _buildCriteria(filterBy)
     const sort = { startTime: 1 }
 
@@ -189,28 +191,40 @@ async function update(slotId, slot) {
 function _buildCriteria(filterBy) {
   const criteria = {}
 
-  if (filterBy.facility && FACILITIES.includes(filterBy.facility)) {
-    criteria.facility = filterBy.facility
+  const { date, facility } = filterBy
+
+  const isToday = normalizeDateToYMD(new Date()) === normalizeDateToYMD(date)
+  logger.info('isToday', isToday)
+
+  if (facility && FACILITIES.includes(facility)) {
+    criteria.facility = facility
   }
 
   if (filterBy.from || filterBy.to) {
     criteria.startTime = {}
-    if (filterBy.from) {
-      const from = new Date(filterBy.from)
+
+    if (filterBy.from && isToday) {
+      const from = new Date(new Date(filterBy.from).getTime() - 1 * 60 * 60 * 1000) // add 1 hour
+      logger.info('from', from)
       if (!isNaN(from.getTime())) {
-        criteria.startTime.$gte = from
+        criteria.startTime = { $gte: from }
       }
     }
-    if (filterBy.to) {
-      const to = new Date(filterBy.to)
+    if (filterBy.to && isToday) {
+      const to = new Date(filterBy.to) // subtract 1 hour
+      logger.info('to', to)
       if (!isNaN(to.getTime())) {
-        criteria.startTime.$lte = to
+        criteria.endTime = { $lte: to }
       }
     }
 
     if (Object.keys(criteria.startTime).length === 0) {
       delete criteria.startTime
     }
+  }
+  if (date) {
+    logger.info('filterBy.date', normalizeDateToYMD(date))
+    criteria.date = normalizeDateToYMD(date)
   }
 
   return criteria

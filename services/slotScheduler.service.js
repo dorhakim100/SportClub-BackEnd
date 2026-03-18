@@ -8,7 +8,9 @@ import { socketService } from './socket.service.js'
 export function setupSlotScheduler() {
   // Run at minute 0 of every hour
   cron.schedule('0 * * * *', async () => {
-    const startTime = getHourAhead(24)
+    const threeDays = 72
+    const maximumOpeningTime = 16
+    const startTime = getHourAhead(threeDays + maximumOpeningTime)
     logger.info('Auto-creating slots for hour', { startTime })
     await createDefaultSlotsForHour(startTime)
   })
@@ -70,6 +72,8 @@ async function createDefaultSlotsForHour(startTime) {
     })
 
 
+
+
     if (shouldCreatePoolSlot) {
         if(isGarumiSlot){
           await slotService.createGarumiSlot({  startTime })
@@ -99,4 +103,3 @@ async function createDefaultSlotsForHour(startTime) {
     })
   }
 }
-

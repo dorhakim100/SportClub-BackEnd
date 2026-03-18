@@ -112,3 +112,10 @@ export function convertToDate(timeString) {
   now.setHours(hours, minutes, 0, 0) // Set hours, minutes, and reset seconds and milliseconds
   return now
 }
+
+export function normalizeDateToYMD(dateLike) {
+  const d = dateLike instanceof Date ? dateLike : new Date(dateLike)
+  if (Number.isNaN(d.getTime())) throw new Error('Invalid date')
+  // Use UTC to reliably normalize ISO strings like "2026-03-19T17:43:26.175Z"
+  return d.toISOString().slice(0, 10)
+}
