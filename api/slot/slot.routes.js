@@ -15,7 +15,7 @@ const router = express.Router()
 router.get('/', getSlots)
 router.post('/', requireAdmin, createSlot)
 router.put('/:id/register', registerToSlot)
-router.put('/:id', requireAdmin, updateSlot)
+router.put('/:id', updateSlot)
 
 export const slotRoutes = router
 

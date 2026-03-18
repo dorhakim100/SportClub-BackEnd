@@ -99,3 +99,4 @@ async function createDefaultSlotsForHour(startTime) {
     })
   }
 }
+
