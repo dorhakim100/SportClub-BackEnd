@@ -29,23 +29,29 @@ async function createDefaultSlotsForHour(startTime) {
   try {
     const dayIndex = new Date(startTime).getDay()
     logger.info('Creating default slots for day', { dayIndex })
-
+    
     const opening = await openingService.findByDayIndex(dayIndex)
-
-
+    
+    
     const poolTimes = opening.times.pool
     const gymTimes = opening.times.gym
-
+    
     let shouldCreatePoolSlot = false
     let isGarumiSlot = false
     let shouldCreateGymSlot = false
-
+    
     const hour = new Date(startTime).getHours()
+    logger.info('hour', { hour })
 
+    const isSaturday = dayIndex === 6
+
+    if(!isSaturday && (hour === 7 || hour === 8)) {
+      isGarumiSlot = true
+    }
+    
     poolTimes.forEach((time) => {
       const fromHour = +time.from.split(':')[0]
       const toHour = +time.to.split(':')[0]
-
         if (hour >= fromHour && hour < toHour) {
           shouldCreatePoolSlot = true
 
@@ -55,18 +61,14 @@ async function createDefaultSlotsForHour(startTime) {
     gymTimes.forEach((time) => {
       const fromHour = +time.from.split(':')[0]
       const toHour = +time.to.split(':')[0]
-
-      const isSaturday = dayIndex === 6
-
-      if(!isSaturday && (fromHour === 7 || fromHour === 8)) {
-        isGarumiSlot = true
-      }
+ 
 
         if (hour >= fromHour && hour < toHour) {
           shouldCreateGymSlot = true
         }
 
     })
+
 
     if (shouldCreatePoolSlot) {
         if(isGarumiSlot){
@@ -97,5 +99,3 @@ async function createDefaultSlotsForHour(startTime) {
     })
   }
 }
-
-
