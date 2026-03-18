@@ -192,39 +192,34 @@ function _buildCriteria(filterBy) {
   const criteria = {}
 
   const { date, facility } = filterBy
-
   const isToday = normalizeDateToYMD(new Date()) === normalizeDateToYMD(date)
-  logger.info('isToday', isToday)
 
   if (facility && FACILITIES.includes(facility)) {
     criteria.facility = facility
   }
 
-  if (filterBy.from || filterBy.to) {
-    criteria.startTime = {}
+  // if (filterBy.from || filterBy.to) {
 
     if (filterBy.from && isToday) {
-      const from = new Date(new Date(filterBy.from).getTime() - 1 * 60 * 60 * 1000) // add 1 hour
-      logger.info('from', from)
-      if (!isNaN(from.getTime())) {
-        criteria.startTime = { $gte: from }
+      criteria.startTime = {}
+      const fromDate = new Date(filterBy.from)
+      if (!isNaN(fromDate.getTime())) {
+        criteria.startTime.$gte = fromDate
       }
     }
-    if (filterBy.to && isToday) {
-      const to = new Date(filterBy.to) // subtract 1 hour
-      logger.info('to', to)
-      if (!isNaN(to.getTime())) {
-        criteria.endTime = { $lte: to }
-      }
-    }
+  //   if (to && isToday) {
+  //     const toDate = new Date(to)
+  //     if (!isNaN(toDate.getTime())) {
+  //       criteria.startTime.$lte = toDate
+  //     }
+  //   }
 
-    if (Object.keys(criteria.startTime).length === 0) {
-      delete criteria.startTime
-    }
-  }
+
+  // }
   if (date) {
-    logger.info('filterBy.date', normalizeDateToYMD(date))
-    criteria.date = normalizeDateToYMD(date)
+    const datePlus2Hours = new Date(date).getTime() + 2 * 60 * 60 * 1000
+    logger.info('filterBy.date', normalizeDateToYMD(datePlus2Hours))
+    criteria.date = normalizeDateToYMD(datePlus2Hours)
   }
 
   return criteria

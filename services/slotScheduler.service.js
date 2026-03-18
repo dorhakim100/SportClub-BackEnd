@@ -42,6 +42,8 @@ async function createDefaultSlotsForHour(startTime) {
     let shouldCreatePoolSlot = false
     let isGarumiSlot = false
     let shouldCreateGymSlot = false
+
+    
     
     const hour = new Date(startTime).getHours()
     logger.info('hour', { hour })
@@ -73,7 +75,8 @@ async function createDefaultSlotsForHour(startTime) {
     })
 
 
-
+    logger.info('shouldCreatePoolSlot', shouldCreatePoolSlot)
+    logger.info('shouldCreateGymSlot', shouldCreateGymSlot)
 
     if (shouldCreatePoolSlot) {
         if(isGarumiSlot){
