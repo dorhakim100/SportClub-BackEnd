@@ -7,6 +7,7 @@ export async function getSlots(req, res) {
       facility: req.query?.facility,
       from: req.query?.from,
       to: req.query?.to,
+      date: req.query?.date,
     }
 
     const slots = await slotService.query(filterBy)

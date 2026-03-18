@@ -73,6 +73,8 @@ async function createDefaultSlotsForHour(startTime) {
     })
 
 
+
+
     if (shouldCreatePoolSlot) {
         if(isGarumiSlot){
           await slotService.createGarumiSlot({  startTime })
@@ -102,4 +104,3 @@ async function createDefaultSlotsForHour(startTime) {
     })
   }
 }
-
