@@ -78,13 +78,13 @@ async function sendRegistrationConfirmation(slot, profile) {
     accountSid: process.env.TWILIO_ACCOUNT_SID,
     authToken: process.env.TWILIO_AUTH_TOKEN,
     body:`
-    היי ${name}!
-    אנחנו שומרים לך מקום לאימון ב${facilityString}, ב${date}, בשעה: ${timeString}
-    אימון נעים!
-    `
+היי ${name}!
+אנחנו שומרים לך מקום לאימון ב${facilityString}, ב${date}, בשעה: ${timeString}
+אימון נעים!
+`
 
     })
-    logger.info('Registration confirmation sent', { res })
+
   } catch (err) {
     console.error('Twilio error:', err)
   }
@@ -120,11 +120,11 @@ async function sendErrorSlotCreation(date, startTime, endTime, facility) {
     accountSid: process.env.TWILIO_ACCOUNT_SID,
     authToken: process.env.TWILIO_AUTH_TOKEN,
     body:`
-    There was an error creating a slot.
-    Date: ${date}.
-    Time: ${startTime} - ${endTime}.
-    Facility: ${facility}.
-    `
+There was an error creating a slot.
+Date: ${date}.
+Time: ${startTime} - ${endTime}.
+Facility: ${facility}.
+`
 
     })
   } catch (err) {
