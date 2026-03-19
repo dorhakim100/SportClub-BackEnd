@@ -154,7 +154,7 @@ export function formatSlotTimeRange(fromValue, toValue) {
 }
 
 
-function formatTimeValue(timeValue) {
+export function formatTimeValue(timeValue) {
   if (!timeValue) return ''
 
   // Keep already-formatted values such as "09:00".

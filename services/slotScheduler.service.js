@@ -6,7 +6,7 @@ import { slotService } from '../api/slot/slot.service.js'
 import { logger } from './logger.service.js'
 import { openingService } from '../api/opening/opening.service.js'
 import { socketService } from './socket.service.js'
-
+import { notifyService } from './notify.service.js'
 const TIMEZONE = 'Asia/Jerusalem'
 
 export function setupSlotScheduler() {
@@ -103,10 +103,12 @@ async function createDefaultSlotsForHour(startTime) {
         socketService.emitTo({ type: 'add-slot', data: { startTime: savedGymSlot.startTime } })
       }
   } catch (err) {
+    const facility = savedPoolSlot ? 'gym' : 'pool'
     logger.error('Failed to auto-create slots for hour', {
       err,
       startTime,
     })
+    notifyService.sendErrorSlotCreation(startTime, startTime, startTime, facility)
   }
 }
 

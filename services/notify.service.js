@@ -2,7 +2,7 @@ import pkg from 'twilio'
 const { Twilio } = pkg
 import parsePhoneNumber from 'libphonenumber-js'
 import { logger } from './logger.service.js'
-import { formatSlotDate, formatSlotTimeRange } from './util.service.js'
+import { formatSlotDate, formatSlotTimeRange, formatTimeValue } from './util.service.js'
 
 const client = new Twilio(
   process.env.TWILIO_ACCOUNT_SID,
@@ -11,10 +11,14 @@ const client = new Twilio(
 
 const TEMPLATE_ID = 'HX717db81c00f958fb3d38be18d095343c'
 const REGISTRATION_CONFIRMATION_TEMPLATE_ID = 'HX1b7ab8d0a7a994bcc71168c41aa48c59'
+const ERROR_SLOT_CREATION_TEMPLATE_ID = 'HX3fb42a449972163cfc557fee3a927250'
+
+const DEVELOPER_PHONE = '0542044022'
 
 export const notifyService = {
   sendWhatsAppNotification,
-  sendRegistrationConfirmation
+  sendRegistrationConfirmation,
+  sendErrorSlotCreation
 }
 
 
@@ -70,6 +74,48 @@ async function sendRegistrationConfirmation(slot, profile) {
   }
 }
 
+async function sendErrorSlotCreation(date, startTime, endTime, facility) {
+  try {
+    // const modifiedTo = `whatsapp:${'+972508833262'}`
+    
+    const modifiedTo = normalizeIsraeliNumber(DEVELOPER_PHONE)
+    if (!modifiedTo) {
+      logger.error('Invalid developer phone number for slot error notification')
+      return
+    }
+
+  logger.info('Sending error slot creation to', { date, startTime, endTime, facility })
+  //  const res =  await client.messages.create({
+  //     to: modifiedTo,
+  //     from: process.env.ADMIN_WHATSAPP_FROM,
+  //     contentSid: ERROR_SLOT_CREATION_TEMPLATE_ID,
+  //     contentVariables: JSON.stringify({
+  //       1: `${formatSlotDate(date, true)}`,
+  //       2: `${formatTimeValue(startTime)}`,
+  //       3: `${formatTimeValue(endTime)}`,
+  //       4: `${facility}`,
+  //     }),
+  //   })
+   await client.messages.create({
+
+    to: `${modifiedTo}`,
+    
+    from: '+972535602776',
+    accountSid: process.env.TWILIO_ACCOUNT_SID,
+    authToken: process.env.TWILIO_AUTH_TOKEN,
+    body:`
+    There was an error creating a slot.
+    Date: ${date}.
+    Time: ${startTime} - ${endTime}.
+    Facility: ${facility}.
+    `
+
+    })
+  } catch (err) {
+    console.error('Twilio error:', err)
+  }
+}
+
 function normalizeIsraeliNumber(input) {
   // try to parse; default country "IL" for numbers without country code
   const phone = parsePhoneNumber(input, 'IL')
@@ -77,3 +123,5 @@ function normalizeIsraeliNumber(input) {
 
   return phone.number // E.164 format
 }
+
+
