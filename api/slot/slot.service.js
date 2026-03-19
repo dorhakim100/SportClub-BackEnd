@@ -4,6 +4,7 @@ import { logger } from '../../services/logger.service.js'
 import { dbService } from '../../services/db.service.js'
 import { asyncLocalStorage } from '../../services/als.service.js'
 import { normalizeDateToYMD } from '../../services/util.service.js'
+import { notifyService } from '../../services/notify.service.js'
 
 const FACILITIES = ['pool', 'gym']
 const DEFAULT_CAPACITY = 8
@@ -158,6 +159,8 @@ async function register(slotId,name,phone) {
       { _id },
       { $set: { registrations: updatedRegistrations } }
     )
+    
+    await notifyService.sendRegistrationConfirmation(slot, { name, phone })
     
     return {
       ...slot,

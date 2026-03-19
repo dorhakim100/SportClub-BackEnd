@@ -119,3 +119,53 @@ export function normalizeDateToYMD(dateLike) {
   // Use UTC to reliably normalize ISO strings like "2026-03-19T17:43:26.175Z"
   return d.toISOString().slice(0, 10)
 }
+
+
+export function formatSlotDate(dateValue, isEnglish = false) {
+  const date = dateValue instanceof Date ? dateValue : new Date(dateValue)
+
+  if (Number.isNaN(date.getTime())) return ''
+
+  const hebrewDays = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי', 'שבת']
+  const englishDays = [
+    'Sunday',
+    'Monday',
+    'Tuesday',
+    'Wednesday',
+    'Thursday',
+    'Friday',
+    'Saturday',
+  ]
+
+  const dayName = isEnglish
+    ? englishDays[date.getDay()]
+    : hebrewDays[date.getDay()]
+  const day = String(date.getDate()).padStart(2, '0')
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+
+  return `${dayName}, ${day}/${month}`
+}
+
+export function formatSlotTimeRange(fromValue, toValue) {
+  const from = formatTimeValue(fromValue)
+  const to = formatTimeValue(toValue)
+  if (!from && !to) return ''
+  return `${from} - ${to}`.trim()
+}
+
+
+function formatTimeValue(timeValue) {
+  if (!timeValue) return ''
+
+  // Keep already-formatted values such as "09:00".
+  if (typeof timeValue === 'string' && /^\d{2}:\d{2}$/.test(timeValue)) {
+    return timeValue
+  }
+
+  const parsedDate = timeValue instanceof Date ? timeValue : new Date(timeValue)
+  if (Number.isNaN(parsedDate.getTime())) return ''
+
+  const hours = String(parsedDate.getHours()).padStart(2, '0')
+  const minutes = String(parsedDate.getMinutes()).padStart(2, '0')
+  return `${hours}:${minutes}`
+}

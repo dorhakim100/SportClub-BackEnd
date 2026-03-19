@@ -1,36 +1,27 @@
 import cron from 'node-cron'
+import { DateTime } from 'luxon'
+
 
 import { slotService } from '../api/slot/slot.service.js'
 import { logger } from './logger.service.js'
 import { openingService } from '../api/opening/opening.service.js'
 import { socketService } from './socket.service.js'
 
-const OPENING_CHECK_OFFSET_HOURS = 2
+const TIMEZONE = 'Asia/Jerusalem'
 
 export function setupSlotScheduler() {
   // Run at minute 0 of every hour
   cron.schedule('0 * * * *', async () => {
     const threeDays = 72
     const maximumOpeningTime = 16
-    const startTime = getHourAhead(threeDays + maximumOpeningTime)
+    const startTime = getHourAheadInJerusalem(threeDays + maximumOpeningTime)
     logger.info('Auto-creating slots for hour', { startTime })
     await createDefaultSlotsForHour(startTime)
-  }, {
-    timezone: 'Asia/Jerusalem'
+  },     {
+    timezone: TIMEZONE,
   })
 }
 
-
-
-function getHourAhead(hoursAhead = 24) {
-  const now = new Date()
-  // Round down to the current hour
-  now.setMinutes(0, 0, 0)
-  // Target is current hour + 1, then shifted by (hoursAhead - 1)
-  const nextHour = new Date(now.getTime() + 60 * 60 * 1000)
-  const target = new Date(nextHour.getTime() + (hoursAhead - 1) * 60 * 60 * 1000)
-  return target
-}
 
 async function createDefaultSlotsForHour(startTime) {
   try {
@@ -120,16 +111,21 @@ async function createDefaultSlotsForHour(startTime) {
 }
 
 function getJerusalemDayHour(date) {
-  const parts = new Intl.DateTimeFormat('en-GB', {
-    timeZone: 'Asia/Jerusalem',
-    weekday: 'short',
-    hour: '2-digit',
-    hour12: false,
-  }).formatToParts(date)
+  const dt = DateTime.fromJSDate(date, { zone: TIMEZONE })
 
-  const weekdayStr = parts.find((p) => p.type === 'weekday')?.value
-  const hour = Number(parts.find((p) => p.type === 'hour')?.value)
+  // Sunday = 0 ... Saturday = 6
+  const dayIndex = dt.weekday % 7
 
-  const dayMap = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 }
-  return { dayIndex: dayMap[weekdayStr], hour }
+  return {
+    dayIndex,
+    hour: dt.hour,
+  }
+}
+
+function getHourAheadInJerusalem(hoursAhead = 24) {
+  return DateTime.now()
+    .setZone(TIMEZONE)
+    .startOf('hour')
+    .plus({ hours: hoursAhead })
+    .toJSDate()
 }

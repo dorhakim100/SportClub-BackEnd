@@ -18,6 +18,7 @@ import { slotRoutes } from './api/slot/slot.routes.js'
 // import { jsonRoutes } from './api/json/json.routes.js'
 import { setupSocketAPI } from './services/socket.service.js'
 import { setupSlotScheduler } from './services/slotScheduler.service.js'
+import { notifyService } from './services/notify.service.js'
 
 // import { handleSpamUsers } from './services/spam.service.js'
 
