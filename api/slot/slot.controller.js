@@ -54,3 +54,16 @@ export async function updateSlot(req, res) {
 }
 
 
+export async function cancelRegistrationToSlot(req, res) {
+  try {
+    const slotId = req.params.id
+    const phoneNumber = req.body.phoneToDelete
+    logger.info(`cancelling registration to slot ${slotId} with phone number ${phoneNumber}`)
+    const updatedSlot = await slotService.cancelRegistration(slotId, phoneNumber)
+
+    res.json(updatedSlot)
+  } catch (err) {
+    logger.error('Failed to cancel registration to slot', err)
+    res.status(400).send({ err: err.message || 'Failed to cancel registration to slot' })
+  }
+}

@@ -13,6 +13,7 @@ export const slotService = {
   create,
   createGarumiSlot,
   createGarumiGymSlot,
+  cancelRegistration,
   register,
   update,
 }
@@ -184,6 +185,26 @@ async function update(slotId, slot) {
     return { _id: slotId, ...slotToSave }
   } catch (err) {
     logger.error(`cannot update slot ${slotId}`, err)
+    throw err
+  }
+}
+async function cancelRegistration(slotId, phoneNumber) {
+  try {
+    const collection = await dbService.getCollection('slot')
+    const _id = ObjectId.createFromHexString(slotId)
+
+    const slot = await collection.findOne({ _id })
+    if (!slot) throw new Error('Slot not found')
+
+    const newRegistrations = slot.registrations.filter(registration => registration.phone !== phoneNumber)
+    
+    await collection.updateOne(
+      { _id },
+      { $set: { registrations: newRegistrations } }
+    )    
+    return { ...slot, registrations: newRegistrations }
+  } catch (err) {
+    logger.error(`cannot cancel registration to slot ${slotId}`, err)
     throw err
   }
 }
