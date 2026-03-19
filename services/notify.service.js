@@ -79,7 +79,9 @@ async function sendRegistrationConfirmation(slot, profile) {
     authToken: process.env.TWILIO_AUTH_TOKEN,
     body:`
 היי ${name}!
-אנחנו שומרים לך מקום לאימון ב${facilityString}, ב${date}, בשעה: ${timeString}
+אנחנו שומרים לך מקום לאימון ב${facilityString} :)
+ביום ${date},
+בשעה: ${timeString}
 אימון נעים!
 `
 
