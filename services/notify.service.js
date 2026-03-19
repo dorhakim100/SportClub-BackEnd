@@ -50,23 +50,39 @@ async function sendRegistrationConfirmation(slot, profile) {
     const { facility, startTime, endTime } = slot
     const { name, phone } = profile
     
-    const modifiedTo = `whatsapp:${normalizeIsraeliNumber(phone)}`
+    // const modifiedTo = `whatsapp:${normalizeIsraeliNumber(phone)}`
+    const modifiedTo = normalizeIsraeliNumber(phone)
     const date = formatSlotDate(startTime)
     const timeString = formatSlotTimeRange(startTime, endTime)
 
     const facilityString = facility === 'gym' ? 'חדר הכושר' : 'בריכה'
 
   logger.info('Sending registration confirmation to', { name, phone, facility, date, timeString })
-   const res =  await client.messages.create({
-      to: modifiedTo,
-      from: process.env.ADMIN_WHATSAPP_FROM,
-      contentSid: REGISTRATION_CONFIRMATION_TEMPLATE_ID,
-      contentVariables: JSON.stringify({
-        1: `${name}`,
-        2: `${facilityString}`,
-        3: `${date}`,
-        4: `${timeString}`,
-      }),
+  //  const res =  await client.messages.create({
+  //     to: modifiedTo,
+  //     from: process.env.ADMIN_WHATSAPP_FROM,
+  //     contentSid: REGISTRATION_CONFIRMATION_TEMPLATE_ID,
+  //     contentVariables: JSON.stringify({
+  //       1: `${name}`,
+  //       2: `${facilityString}`,
+  //       3: `${date}`,
+  //       4: `${timeString}`,
+  //     }),
+  //   })
+
+  await client.messages.create({
+
+    to: `${modifiedTo}`,
+    
+    from: '+972535602776',
+    accountSid: process.env.TWILIO_ACCOUNT_SID,
+    authToken: process.env.TWILIO_AUTH_TOKEN,
+    body:`
+    היי ${name}!
+    אנחנו שומרים לך מקום לאימון ב${facilityString}, ב${date}, בשעה: ${timeString}
+    אימון נעים!
+    `
+
     })
     logger.info('Registration confirmation sent', { res })
   } catch (err) {
