@@ -1,4 +1,5 @@
 import pkg from 'twilio'
+
 const { Twilio } = pkg
 import parsePhoneNumber from 'libphonenumber-js'
 import { logger } from './logger.service.js'
@@ -49,11 +50,14 @@ async function sendRegistrationConfirmation(slot, profile) {
     
     const { facility, startTime, endTime } = slot
     const { name, phone } = profile
+
+    const startHourPus2Hours = new Date(startTime.getTime() + 2 * 60 * 60 * 1000)
+    const endHourPlus2Hours = new Date(endTime.getTime() + 2 * 60 * 60 * 1000)
     
     // const modifiedTo = `whatsapp:${normalizeIsraeliNumber(phone)}`
     const modifiedTo = normalizeIsraeliNumber(phone)
-    const date = formatSlotDate(startTime)
-    const timeString = formatSlotTimeRange(startTime, endTime)
+    const date = formatSlotDate(startHourPus2Hours)
+    const timeString = formatSlotTimeRange(startHourPus2Hours, endHourPlus2Hours)
 
     const facilityString = facility === 'gym' ? 'חדר הכושר' : 'בריכה'
 
@@ -70,7 +74,7 @@ async function sendRegistrationConfirmation(slot, profile) {
   //     }),
   //   })
 
-  await client.messages.create({
+  const res= await client.messages.create({
 
     to: `${modifiedTo}`,
     
@@ -83,14 +87,13 @@ async function sendRegistrationConfirmation(slot, profile) {
 ביום ${date},
 בשעה: ${timeString}
 אימון נעים!
-`
-
-    })
-
+`})
+  logger.info('Registration confirmation sent', { res })
   } catch (err) {
     console.error('Twilio error:', err)
   }
 }
+
 
 async function sendErrorSlotCreation(date, startTime, endTime, facility) {
   try {
