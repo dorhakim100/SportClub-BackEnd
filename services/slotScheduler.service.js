@@ -5,6 +5,8 @@ import { logger } from './logger.service.js'
 import { openingService } from '../api/opening/opening.service.js'
 import { socketService } from './socket.service.js'
 
+const OPENING_CHECK_OFFSET_HOURS = 2
+
 export function setupSlotScheduler() {
   // Run at minute 0 of every hour
   cron.schedule('0 * * * *', async () => {
@@ -13,6 +15,8 @@ export function setupSlotScheduler() {
     const startTime = getHourAhead(threeDays + maximumOpeningTime)
     logger.info('Auto-creating slots for hour', { startTime })
     await createDefaultSlotsForHour(startTime)
+  }, {
+    timezone: 'Asia/Jerusalem'
   })
 }
 
@@ -30,8 +34,11 @@ function getHourAhead(hoursAhead = 24) {
 
 async function createDefaultSlotsForHour(startTime) {
   try {
-    const dayIndex = new Date(startTime).getDay()
+
+    const { dayIndex, hour } = getJerusalemDayHour(startTime)
+
     logger.info('Creating default slots for day', { dayIndex })
+    logger.info('hour', { hour })
     
     const opening = await openingService.findByDayIndex(dayIndex)
     
@@ -43,10 +50,12 @@ async function createDefaultSlotsForHour(startTime) {
     let isGarumiSlot = false
     let shouldCreateGymSlot = false
 
+    let savedPoolSlot = null
+    let savedGymSlot = null
+
     
     
-    const hour = new Date(startTime).getHours()
-    logger.info('hour', { hour })
+
 
     const isSaturday = dayIndex === 6
 
@@ -74,32 +83,34 @@ async function createDefaultSlotsForHour(startTime) {
 
     })
 
-
-    logger.info('shouldCreatePoolSlot', shouldCreatePoolSlot)
-    logger.info('shouldCreateGymSlot', shouldCreateGymSlot)
-
     if (shouldCreatePoolSlot) {
         if(isGarumiSlot){
-          await slotService.createGarumiSlot({  startTime })
+          savedPoolSlot = await slotService.createGarumiSlot({  startTime })
           logger.info('Created Garumi slot for hour', { startTime })
           
         } else {
-          await slotService.create({ facility: 'pool', startTime })
+          savedPoolSlot = await slotService.create({ facility: 'pool', startTime })
           logger.info('Created pool slot for hour', { startTime })
         }
         
       }
       if (shouldCreateGymSlot) {
         if(isGarumiSlot){
-          await slotService.createGarumiGymSlot({  startTime })
+          savedGymSlot = await slotService.createGarumiGymSlot({  startTime })
           logger.info('Created Garumi slot for hour', { startTime })
           
         } else {
-          await slotService.create({ facility: 'gym', startTime })
+          savedGymSlot = await slotService.create({ facility: 'gym', startTime })
           logger.info('Created gym slot for hour', { startTime })
         }
       }
-    socketService.emitTo({ type: 'add-slot', data: { startTime } })
+
+      if(savedPoolSlot) {
+        socketService.emitTo({ type: 'add-slot', data: { startTime: savedPoolSlot.startTime } })
+      }
+      if(savedGymSlot) {
+        socketService.emitTo({ type: 'add-slot', data: { startTime: savedGymSlot.startTime } })
+      }
   } catch (err) {
     logger.error('Failed to auto-create slots for hour', {
       err,
@@ -108,4 +119,17 @@ async function createDefaultSlotsForHour(startTime) {
   }
 }
 
+function getJerusalemDayHour(date) {
+  const parts = new Intl.DateTimeFormat('en-GB', {
+    timeZone: 'Asia/Jerusalem',
+    weekday: 'short',
+    hour: '2-digit',
+    hour12: false,
+  }).formatToParts(date)
 
+  const weekdayStr = parts.find((p) => p.type === 'weekday')?.value
+  const hour = Number(parts.find((p) => p.type === 'hour')?.value)
+
+  const dayMap = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 }
+  return { dayIndex: dayMap[weekdayStr], hour }
+}
