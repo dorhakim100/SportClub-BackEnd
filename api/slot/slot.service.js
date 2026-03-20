@@ -171,7 +171,7 @@ async function register(slotId,name,phone) {
       { $set: { registrations: updatedRegistrations } }
     )
     
-    await notifyService.sendRegistrationConfirmation(slot, { name, phone })
+    // await notifyService.sendRegistrationConfirmation(slot, { name, phone })
     
     return {
       ...slot,
