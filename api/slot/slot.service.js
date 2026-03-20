@@ -137,13 +137,14 @@ async function register(slotId,name,phone) {
   try {
     const collection = await dbService.getCollection('slot')
     const _id = ObjectId.createFromHexString(slotId)
-
+    
     const slot = await collection.findOne({ _id })
     if (!slot) throw new Error('Slot not found')
-
-    const registrations = slot.registrations || []
-
-    const isExists = registrations.find(registration => registration.name === name || registration.phone === phone)
+      
+      const registrations = slot.registrations || []
+      
+      name = name.toLowerCase()
+      const isExists = registrations.find(registration => registration.name.toLowerCase() === name || registration.phone === phone)
 
     if (isExists) {
       throw new Error('User already registered for this slot')
@@ -151,6 +152,16 @@ async function register(slotId,name,phone) {
 
     if (registrations.length >= slot.capacity) {
       throw new Error('Slot is full')
+    }
+
+    const isAlreadyRegisteredToday = await collection.findOne({
+      facility: slot.facility,
+      date: slot.date,
+      registrations: { $elemMatch: { $or: [{ phone }, { name:name.toLowerCase() }] } }
+    })
+
+    if (isAlreadyRegisteredToday) {
+      throw new Error('User already registered for this slot today')
     }
 
     const updatedRegistrations = [...registrations, {name, phone}]
