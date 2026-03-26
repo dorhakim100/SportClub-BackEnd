@@ -7,7 +7,7 @@ import { normalizeDateToYMD } from '../../services/util.service.js'
 import { notifyService } from '../../services/notify.service.js'
 
 const FACILITIES = ['pool', 'gym']
-const DEFAULT_CAPACITY = 8
+const DEFAULT_CAPACITY = 10
 
 export const slotService = {
   query,
