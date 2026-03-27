@@ -51,7 +51,7 @@ async function createDefaultSlotsForHour(startTime) {
     const isSaturday = dayIndex === 6
     const isFriday = dayIndex === 5
 
-    if(!isSaturday && (hour === 7 || hour === 8)) {
+    if((!isSaturday && !isFriday) && (hour === 7 || hour === 8)) {
       isGarumiSlot = true
     }
 
