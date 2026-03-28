@@ -68,7 +68,7 @@ async function createDefaultSlotsForHour(startTime) {
       console.log('toHour', toHour);
       console.log('hour', hour);
       
-        if (hour  >= fromHour && hour  < toHour) {
+        if (hour  >= fromHour && hour  < toHour + OPENING_HOUR_SHIFT) {
           shouldCreatePoolSlot = true
 
       }
@@ -79,7 +79,7 @@ async function createDefaultSlotsForHour(startTime) {
       const toHour = +time.to.split(':')[0]
  
 
-        if (hour  >= fromHour && hour  < toHour) {
+        if (hour  >= fromHour && hour  < toHour + OPENING_HOUR_SHIFT) {
           shouldCreateGymSlot = true
         }
 
