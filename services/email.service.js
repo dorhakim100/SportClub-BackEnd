@@ -22,7 +22,7 @@ async function sendRegistrationConfirmationEmail(to, name, date, startHour, endH
     from: `מועדון הספורט כפר שמריהו <${RESEND_FROM_EMAIL}>`,
 
     to: [to],
-    subject: `רישום מראש - ${facility} - ${date} - ${startHour} - ${endHour}`,
+    subject: `רישום מראש - ${facility} - ${date} - ${endHour} - ${startHour}`,
     html: getRegistrationConfirmationEmailHtml(name, date, startHour, endHour, facility),
   });
   
@@ -75,7 +75,7 @@ function getRegistrationConfirmationEmailHtml(name, date, startHour, endHour, fa
               <strong>📅 תאריך:</strong> ${date}
             </p>
             <p style="margin:0;font-size:15px;color:#374151;">
-              <strong>⏰ שעה:</strong> <div dir="ltr">${startHour} - ${endHour}</div>
+              <strong>⏰ שעה:</strong> ${endHour} - ${startHour}
             </p>
           </div>
 
