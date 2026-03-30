@@ -59,7 +59,7 @@ async function createDefaultSlotsForHour(startTime) {
     poolTimes.forEach((time) => {
       const fromHour = +time.from.split(':')[0] + OPENING_HOUR_SHIFT
       const toHour = +time.to.split(':')[0] + OPENING_HOUR_SHIFT
-      logger.info('Creating gym slot for hour',{hour}, { fromHour, toHour })
+      logger.info('Trying to create pool slot for hour',{hour}, { fromHour, toHour })
       
         if (hour  >= fromHour  && hour  < toHour ) {
           shouldCreatePoolSlot = true
@@ -69,12 +69,9 @@ async function createDefaultSlotsForHour(startTime) {
 
     gymTimes.forEach((time) => {
       const fromHour = +time.from.split(':')[0] + OPENING_HOUR_SHIFT
-      const toHour = +time.to.split(':')[0] + OPENING_HOUR_SHIFT
+      const toHour = +time.to.split(':')[0] + OPENING_HOUR_SHIFT      
 
-      console.log('toHour', toHour);
-      
-
-      logger.info('Creating gym slot for hour',{hour}, { fromHour, toHour })
+      logger.info('Trying to create gym slot for hour',{hour}, { fromHour, toHour })
  
 
         if (hour  >= fromHour  && hour  < toHour ) {
@@ -118,6 +115,8 @@ async function createDefaultSlotsForHour(startTime) {
       startTime,
     })
     notifyService.sendErrorSlotCreation(startTime, startTime, startTime, facility)
+
+
   }
 }
 
