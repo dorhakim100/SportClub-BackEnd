@@ -8,7 +8,8 @@ import { openingService } from '../api/opening/opening.service.js'
 import { socketService } from './socket.service.js'
 import { notifyService } from './notify.service.js'
 const TIMEZONE = 'Asia/Jerusalem'
-const OPENING_HOUR_SHIFT =  -1
+const OPENING_HOUR_SHIFT =  -1 // summer clock in Israel
+// const OPENING_HOUR_SHIFT =  0 // winter clock in Israel
 
 export function setupSlotScheduler() {
   // Run at minute 0 of every hour
@@ -48,11 +49,13 @@ async function createDefaultSlotsForHour(startTime) {
     const isSaturday = dayIndex === 6
     const isFriday = dayIndex === 5
 
-    if((!isSaturday && !isFriday) && (hour  === 7 || hour  === 8)) {
+    
+
+    if((!isSaturday && !isFriday) && (hour  === (7 + OPENING_HOUR_SHIFT)  || hour  === (8 + OPENING_HOUR_SHIFT))) {
       isGarumiSlot = true
     }
-
-    if(isFriday && (hour  === 11 || hour  === 12)){
+    
+    if(isFriday && (hour  === (11 + OPENING_HOUR_SHIFT) || hour  === (12 + OPENING_HOUR_SHIFT))){
       isGarumiSlot = true
     }
     
