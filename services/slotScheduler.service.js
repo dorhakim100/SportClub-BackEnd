@@ -23,7 +23,6 @@ export function setupSlotScheduler() {
   })
 }
 
-
 async function createDefaultSlotsForHour(startTime) {
   try {
 
@@ -46,10 +45,6 @@ async function createDefaultSlotsForHour(startTime) {
     let savedPoolSlot = null
     let savedGymSlot = null
 
-    
-    
-
-
     const isSaturday = dayIndex === 6
     const isFriday = dayIndex === 5
 
@@ -62,21 +57,27 @@ async function createDefaultSlotsForHour(startTime) {
     }
     
     poolTimes.forEach((time) => {
-      const fromHour = +time.from.split(':')[0] 
-      const toHour = +time.to.split(':')[0] 
+      const fromHour = +time.from.split(':')[0] + OPENING_HOUR_SHIFT
+      const toHour = +time.to.split(':')[0] + OPENING_HOUR_SHIFT
+      logger.info('Creating gym slot for hour',{hour}, { fromHour, toHour })
       
-        if (hour  >= fromHour + OPENING_HOUR_SHIFT && hour  < toHour + OPENING_HOUR_SHIFT) {
+        if (hour  >= fromHour  && hour  < toHour ) {
           shouldCreatePoolSlot = true
 
       }
     })
 
     gymTimes.forEach((time) => {
-      const fromHour = +time.from.split(':')[0] 
-      const toHour = +time.to.split(':')[0]
+      const fromHour = +time.from.split(':')[0] + OPENING_HOUR_SHIFT
+      const toHour = +time.to.split(':')[0] + OPENING_HOUR_SHIFT
+
+      console.log('toHour', toHour);
+      
+
+      logger.info('Creating gym slot for hour',{hour}, { fromHour, toHour })
  
 
-        if (hour  >= fromHour + OPENING_HOUR_SHIFT && hour  < toHour + OPENING_HOUR_SHIFT) {
+        if (hour  >= fromHour  && hour  < toHour ) {
           shouldCreateGymSlot = true
         }
 

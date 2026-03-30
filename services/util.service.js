@@ -120,6 +120,17 @@ export function normalizeDateToYMD(dateLike) {
   return d.toISOString().slice(0, 10)
 }
 
+export function formatYMDToDMY(ymdDate) {
+  if (typeof ymdDate !== 'string') throw new Error('Invalid date format')
+  const parts = ymdDate.split('-')
+  if (parts.length !== 3) throw new Error('Invalid date format')
+
+  const [year, month, day] = parts
+  if (!year || !month || !day) throw new Error('Invalid date format')
+
+  return `${day.padStart(2, '0')}.${month.padStart(2, '0')}.${year}`
+}
+
 
 export function formatSlotDate(dateValue, isEnglish = false) {
   const date = dateValue instanceof Date ? dateValue : new Date(dateValue)
@@ -168,4 +179,36 @@ export function formatTimeValue(timeValue) {
   const hours = String(parsedDate.getHours()).padStart(2, '0')
   const minutes = String(parsedDate.getMinutes()).padStart(2, '0')
   return `${hours}:${minutes}`
+}
+
+export function capitalizeFirstLetter(string) {
+  if (string.includes(' ')) {
+    return string
+      .split(' ')
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ')
+  }
+  return string.charAt(0).toUpperCase() + string.slice(1)
+}
+
+export function normalizeIsraeliPhoneToLocal(phoneInput) {
+  if (phoneInput === null || phoneInput === undefined) {
+    throw new Error('Invalid phone number')
+  }
+
+  let phone = String(phoneInput).trim()
+  // Keep digits and optional leading plus only.
+  phone = phone.replace(/[^\d+]/g, '')
+
+  if (phone.startsWith('+972')) {
+    phone = `0${phone.slice(4)}`
+  } else if (phone.startsWith('972')) {
+    phone = `0${phone.slice(3)}`
+  }
+
+  if (!/^05\d{8}$/.test(phone)) {
+    throw new Error('Invalid phone number')
+  }
+
+  return phone
 }

@@ -18,7 +18,7 @@ import { slotRoutes } from './api/slot/slot.routes.js'
 // import { jsonRoutes } from './api/json/json.routes.js'
 import { setupSocketAPI } from './services/socket.service.js'
 import { setupSlotScheduler } from './services/slotScheduler.service.js'
-import { notifyService } from './services/notify.service.js'
+
 
 // import { handleSpamUsers } from './services/spam.service.js'
 
@@ -74,6 +74,7 @@ app.get('/**', (req, res) => {
 })
 
 import { logger } from './services/logger.service.js'
+import { emailService } from './services/email.service.js'
 // const port = process.env.PORT || 5173
 const port = process.env.PORT || 3030
 

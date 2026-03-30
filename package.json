@@ -25,6 +25,7 @@
         "mongodb": "^6.6.2",
         "node-cron": "^4.2.1",
         "node-fetch": "^3.3.2",
+        "resend": "^6.9.4",
         "simple-git": "^3.27.0",
         "socket.io": "^4.2.0",
         "twilio": "^5.5.2"

@@ -3,8 +3,9 @@ import { ObjectId } from 'mongodb'
 import { logger } from '../../services/logger.service.js'
 import { dbService } from '../../services/db.service.js'
 import { asyncLocalStorage } from '../../services/als.service.js'
-import { normalizeDateToYMD } from '../../services/util.service.js'
+import { normalizeDateToYMD, normalizeIsraeliPhoneToLocal } from '../../services/util.service.js'
 import { notifyService } from '../../services/notify.service.js'
+import { emailService } from '../../services/email.service.js'
 
 const FACILITIES = ['pool', 'gym']
 const DEFAULT_CAPACITY = 10
@@ -132,12 +133,12 @@ async function createGarumiGymSlot({ startTime }) {
   }
 }
 
-async function register(slotId,name,phone) {
+async function register(slotId,name,phone,email) {
 
   try {
     const collection = await dbService.getCollection('slot')
     const _id = ObjectId.createFromHexString(slotId)
-    
+    phone = normalizeIsraeliPhoneToLocal(phone)
     const slot = await collection.findOne({ _id })
     if (!slot) throw new Error('Slot not found')
       
@@ -170,7 +171,10 @@ async function register(slotId,name,phone) {
       { _id },
       { $set: { registrations: updatedRegistrations } }
     )
-    
+    if(email){
+
+      await emailService.sendRegistrationConfirmationEmail(email, name, slot.date, slot.startTime, slot.facility)
+    }
     // await notifyService.sendRegistrationConfirmation(slot, { name, phone })
     
     return {

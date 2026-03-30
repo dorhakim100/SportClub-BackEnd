@@ -31,9 +31,9 @@ export async function createSlot(req, res) {
 
 export async function registerToSlot(req, res) {
   try {
-    const { name, phone } = req.body
+    const { name, phone, email } = req.body
     const slotId = req.params.id
-    const updatedSlot = await slotService.register(slotId,name,phone)
+    const updatedSlot = await slotService.register(slotId,name,phone,email)
     res.json(updatedSlot)
   } catch (err) {
     logger.error('Failed to register to slot', err)
