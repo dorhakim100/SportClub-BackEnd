@@ -64,11 +64,8 @@ async function createDefaultSlotsForHour(startTime) {
     poolTimes.forEach((time) => {
       const fromHour = +time.from.split(':')[0] 
       const toHour = +time.to.split(':')[0] 
-      console.log('fromHour', fromHour);
-      console.log('toHour', toHour);
-      console.log('hour', hour);
       
-        if (hour  >= fromHour && hour  < toHour + OPENING_HOUR_SHIFT) {
+        if (hour  >= fromHour + OPENING_HOUR_SHIFT && hour  < toHour + OPENING_HOUR_SHIFT) {
           shouldCreatePoolSlot = true
 
       }
@@ -79,7 +76,7 @@ async function createDefaultSlotsForHour(startTime) {
       const toHour = +time.to.split(':')[0]
  
 
-        if (hour  >= fromHour && hour  < toHour + OPENING_HOUR_SHIFT) {
+        if (hour  >= fromHour + OPENING_HOUR_SHIFT && hour  < toHour + OPENING_HOUR_SHIFT) {
           shouldCreateGymSlot = true
         }
 
