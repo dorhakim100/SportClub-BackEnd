@@ -9,6 +9,7 @@ export const emailService = {
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 const REGISTER_URL = 'https://www.moadonsport.com/register'
+const RESEND_FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev'
 
 async function sendRegistrationConfirmationEmail(to, name, date, time, facility) {
     facility = facility === 'pool' ? 'בריכה' : 'חדר הכושר'
@@ -17,7 +18,7 @@ async function sendRegistrationConfirmationEmail(to, name, date, time, facility)
     date = formatYMDToDMY(date)
   try {
   const { data, error } = await resend.emails.send({
-    from: ' מועדון הספורט כפר שמריהו<onboarding@resend.dev>',
+    from: `מועדון הספורט כפר שמריהו <${RESEND_FROM_EMAIL}>`,
 
     to: [to],
     subject: `רישום מראש - ${facility} - ${date} - ${time}`,

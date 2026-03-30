@@ -171,6 +171,7 @@ async function register(slotId,name,phone,email) {
       { _id },
       { $set: { registrations: updatedRegistrations } }
     )
+    
     if(email){
 
       await emailService.sendRegistrationConfirmationEmail(email, name, slot.date, slot.startTime, slot.facility)
