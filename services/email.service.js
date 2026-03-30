@@ -75,7 +75,7 @@ function getRegistrationConfirmationEmailHtml(name, date, startHour, endHour, fa
               <strong>📅 תאריך:</strong> ${date}
             </p>
             <p style="margin:0;font-size:15px;color:#374151;">
-              <strong>⏰ שעה:</strong> ${startHour} - ${endHour}
+              <strong>⏰ שעה:</strong> <div dir="ltr">${startHour} - ${endHour}</div>
             </p>
           </div>
 
