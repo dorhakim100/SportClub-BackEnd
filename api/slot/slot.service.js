@@ -174,7 +174,11 @@ async function register(slotId,name,phone,email) {
     
     if(email){
 
-      await emailService.sendRegistrationConfirmationEmail(email, name, slot.date, slot.startTime, slot.facility)
+
+    const startHour = new Date(slot.startTime.getTime())
+    const endHour = new Date(slot.endTime.getTime())
+
+      await emailService.sendRegistrationConfirmationEmail(email, name, slot.date, startHour, endHour, slot.facility)
     }
     // await notifyService.sendRegistrationConfirmation(slot, { name, phone })
     

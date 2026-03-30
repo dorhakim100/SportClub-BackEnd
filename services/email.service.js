@@ -11,18 +11,19 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 const REGISTER_URL = 'https://www.moadonsport.com/register'
 const RESEND_FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev'
 
-async function sendRegistrationConfirmationEmail(to, name, date, time, facility) {
+async function sendRegistrationConfirmationEmail(to, name, date, startHour, endHour, facility) {
     facility = facility === 'pool' ? 'בריכה' : 'חדר הכושר'
     name = capitalizeFirstLetter(name)
-    time = formatTimeValue(time)
+    startHour = formatTimeValue(startHour)
+    endHour = formatTimeValue(endHour)
     date = formatYMDToDMY(date)
   try {
   const { data, error } = await resend.emails.send({
     from: `מועדון הספורט כפר שמריהו <${RESEND_FROM_EMAIL}>`,
 
     to: [to],
-    subject: `רישום מראש - ${facility} - ${date} - ${time}`,
-    html: getRegistrationConfirmationEmailHtml(name, date, time, facility),
+    subject: `רישום מראש - ${facility} - ${date} - ${startHour} - ${endHour}`,
+    html: getRegistrationConfirmationEmailHtml(name, date, startHour, endHour, facility),
   });
   
   if (error) {
@@ -34,7 +35,7 @@ async function sendRegistrationConfirmationEmail(to, name, date, time, facility)
   }
 }
 
-function getRegistrationConfirmationEmailHtml(name, date, time, facility) {
+function getRegistrationConfirmationEmailHtml(name, date, startHour, endHour, facility) {
 
 
 
@@ -74,7 +75,7 @@ function getRegistrationConfirmationEmailHtml(name, date, time, facility) {
               <strong>📅 תאריך:</strong> ${date}
             </p>
             <p style="margin:0;font-size:15px;color:#374151;">
-              <strong>⏰ שעה:</strong> ${time}
+              <strong>⏰ שעה:</strong> ${startHour} - ${endHour}
             </p>
           </div>
 
