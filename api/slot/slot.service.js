@@ -7,6 +7,8 @@ import { normalizeDateToYMD, normalizeIsraeliPhoneToLocal } from '../../services
 import { notifyService } from '../../services/notify.service.js'
 import { emailService } from '../../services/email.service.js'
 
+const IS_PROD = process.env.NODE_ENV === 'production'
+
 const FACILITIES = ['pool', 'gym']
 const DEFAULT_CAPACITY = 10
 
@@ -174,9 +176,15 @@ async function register(slotId,name,phone,email) {
     
     if(email){
 
+      // const HOUR_MULTIPLIER = 2 // winter clock in Israel
+      const HOUR_MULTIPLIER = 3 // summer clock in Israel
 
-    const startHour = new Date(slot.startTime.getTime())
-    const endHour = new Date(slot.endTime.getTime())
+      const startTimeHoursBuffer = new Date(slot.startTime.getTime() + HOUR_MULTIPLIER * 60 * 60 * 1000)
+      const endTimeHoursBuffer = new Date(slot.endTime.getTime() + HOUR_MULTIPLIER * 60 * 60 * 1000)
+
+
+    const startHour = new Date(startTimeHoursBuffer.getTime())
+    const endHour = new Date(endTimeHoursBuffer.getTime())
 
       await emailService.sendRegistrationConfirmationEmail(email, name, slot.date, startHour, endHour, slot.facility)
     }
