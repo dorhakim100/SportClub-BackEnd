@@ -7,7 +7,8 @@ import { normalizeDateToYMD, normalizeIsraeliPhoneToLocal } from '../../services
 import { notifyService } from '../../services/notify.service.js'
 import { emailService } from '../../services/email.service.js'
 
-const IS_PROD = process.env.NODE_ENV === 'production'
+// const IS_PROD = process.env.NODE_ENV === 'production'
+const IS_PROD = true
 
 const FACILITIES = ['pool', 'gym']
 const DEFAULT_CAPACITY = 10
