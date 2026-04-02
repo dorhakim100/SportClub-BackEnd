@@ -19,7 +19,7 @@ export function setupSlotScheduler() {
     const startTime3DaysAhead = getHourAheadInJerusalem(threeDays + maximumOpeningTime)
     
     const startTime72HoursAhead = getHourAheadInJerusalem(threeDays)
-    const startTime62HoursAhead = getHourAheadInJerusalem(62)
+    const startTime112HoursAhead = getHourAheadInJerusalem(112)
 
     
     logger.info('Auto-creating slots for hour', { startTime3DaysAhead })
@@ -31,18 +31,9 @@ export function setupSlotScheduler() {
       } catch (err) {
         logger.error('Failed to auto-create slots', { err })
       }
-    try {
-
-        await createDefaultSlotsForHour(startTime62HoursAhead)
+      try {
         
         
-        logger.info('Created slots for 62 hours ahead', { startTime62HoursAhead })
-      } catch (err) {
-        logger.error('Failed to auto-create slots', { err })
-      }
-    try {
-
-
         await createDefaultSlotsForHour(startTime72HoursAhead)
         
         
@@ -50,6 +41,15 @@ export function setupSlotScheduler() {
       } catch (err) {
         logger.error('Failed to auto-create slots', { err })
       }
+      try {
+  
+          await createDefaultSlotsForHour(startTime112HoursAhead)
+          
+          
+          logger.info('Created slots for 112 hours ahead', { startTime112HoursAhead })
+        } catch (err) {
+          logger.error('Failed to auto-create slots', { err })
+        }
       
   }, {
     timezone: TIMEZONE,
