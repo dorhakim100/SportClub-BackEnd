@@ -16,10 +16,42 @@ export function setupSlotScheduler() {
   cron.schedule('0 * * * *', async () => {
     const threeDays = 72
     const maximumOpeningTime = 16
-    const startTime = getHourAheadInJerusalem(threeDays + maximumOpeningTime)
-    logger.info('Auto-creating slots for hour', { startTime })
-    await createDefaultSlotsForHour(startTime)
-  },     {
+    const startTime3DaysAhead = getHourAheadInJerusalem(threeDays + maximumOpeningTime)
+    
+    const startTime72HoursAhead = getHourAheadInJerusalem(threeDays)
+    const startTime62HoursAhead = getHourAheadInJerusalem(62)
+
+    
+    logger.info('Auto-creating slots for hour', { startTime3DaysAhead })
+    try {
+        await createDefaultSlotsForHour(startTime3DaysAhead)
+          
+        
+        logger.info('Created slots for 3 days ahead', { startTime3DaysAhead })
+      } catch (err) {
+        logger.error('Failed to auto-create slots', { err })
+      }
+    try {
+
+        await createDefaultSlotsForHour(startTime62HoursAhead)
+        
+        
+        logger.info('Created slots for 62 hours ahead', { startTime62HoursAhead })
+      } catch (err) {
+        logger.error('Failed to auto-create slots', { err })
+      }
+    try {
+
+
+        await createDefaultSlotsForHour(startTime72HoursAhead)
+        
+        
+        logger.info('Created slots for 72 hours ahead', { startTime72HoursAhead })
+      } catch (err) {
+        logger.error('Failed to auto-create slots', { err })
+      }
+      
+  }, {
     timezone: TIMEZONE,
   })
 }

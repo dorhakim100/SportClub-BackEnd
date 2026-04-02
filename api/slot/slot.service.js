@@ -179,8 +179,8 @@ async function register(slotId,name,phone,email) {
       // const HOUR_MULTIPLIER = 2 // winter clock in Israel
       const HOUR_MULTIPLIER = 3 // summer clock in Israel
 
-      const startTimeHoursBuffer = new Date(slot.startTime.getTime() + HOUR_MULTIPLIER * 60 * 60 * 1000)
-      const endTimeHoursBuffer = new Date(slot.endTime.getTime() + HOUR_MULTIPLIER * 60 * 60 * 1000)
+      const startTimeHoursBuffer = new Date(slot.startTime.getTime() + IS_PROD ?  HOUR_MULTIPLIER * 60 * 60 * 1000 : 0)
+      const endTimeHoursBuffer = new Date(slot.endTime.getTime() + IS_PROD ?  HOUR_MULTIPLIER * 60 * 60 * 1000 : 0)
 
 
     const startHour = new Date(startTimeHoursBuffer.getTime())
