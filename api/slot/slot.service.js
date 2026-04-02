@@ -7,11 +7,13 @@ import { normalizeDateToYMD, normalizeIsraeliPhoneToLocal } from '../../services
 import { notifyService } from '../../services/notify.service.js'
 import { emailService } from '../../services/email.service.js'
 
-// const IS_PROD = process.env.NODE_ENV === 'production'
-const IS_PROD = true
+const IS_PROD = process.env.NODE_ENV === 'production'
+
 
 const FACILITIES = ['pool', 'gym']
 const DEFAULT_CAPACITY = 10
+
+
 
 export const slotService = {
   query,
@@ -180,8 +182,16 @@ async function register(slotId,name,phone,email) {
       // const HOUR_MULTIPLIER = 2 // winter clock in Israel
       const HOUR_MULTIPLIER = 3 // summer clock in Israel
 
-      const startTimeHoursBuffer = new Date(slot.startTime.getTime() + IS_PROD ?  HOUR_MULTIPLIER * 60 * 60 * 1000 : 0)
-      const endTimeHoursBuffer = new Date(slot.endTime.getTime() + IS_PROD ?  HOUR_MULTIPLIER * 60 * 60 * 1000 : 0)
+      console.log(HOUR_MULTIPLIER * 60 * 60 * 1000);
+      let buffer = 0
+
+      if(IS_PROD){
+        buffer = HOUR_MULTIPLIER * 60 * 60 * 1000
+      }
+      
+
+      const startTimeHoursBuffer = new Date(slot.startTime.getTime() + buffer)
+      const endTimeHoursBuffer = new Date(slot.endTime.getTime() + buffer)
 
 
     const startHour = new Date(startTimeHoursBuffer.getTime())
