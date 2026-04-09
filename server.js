@@ -62,7 +62,7 @@ app.use('/api/slot', slotRoutes)
 app.set('trust proxy', 1)
 
 setupSocketAPI(server)
-setupSlotScheduler()
+// setupSlotScheduler()
 
 // Make every unhandled server-side-route match index.html
 // so when requesting http://localhost:3030/unhandled-route...
