@@ -18,7 +18,6 @@ export const paymentService = {
   update,
   cancelTransaction,
   verifyTransaction,
-  sendEmail,
 }
 
 const PAGE_SIZE = 6
@@ -228,7 +227,9 @@ async function query(filterBy = { txt: '' }) {
     const pipeline = [
       {
         $match: { ...criteria, 
-          'user.id': filterBy.isAdmin ? { $ne: '673097c52964d2be56fdd6e8' } : {} 
+          'user.id': 
+          { $ne: '673097c52964d2be56fdd6e8' } 
+
         },
       },
 
@@ -427,6 +428,7 @@ async function queryOpen() {
 async function update(paymentToSave) {
   try {
     const collection = await dbService.getCollection('payment')
+    const userCollection = await dbService.getCollection('user')
 
     const paymentIdCriteria = {
       _id: ObjectId.createFromHexString(paymentToSave._id),
@@ -441,12 +443,27 @@ async function update(paymentToSave) {
     if (paymentToSave.isReady && !paymentToSave.isDelivered) {
       const name = `${paymentToSave.user.fullname}`
 
-      notifyService.sendWhatsAppNotification(
-        { name, orderNumber: paymentToSave.orderNum },
-        process.env.ADMIN_WHATSAPP_FROM,
-        paymentToSave.user.phone
-      )
+      // notifyService.sendWhatsAppNotification(
+      //   { name, orderNumber: paymentToSave.orderNum },
+      //   process.env.ADMIN_WHATSAPP_FROM,
+      //   paymentToSave.user.phone
+      // )
     }
+
+    const justBecameReady = !originalPayment.isReady && paymentToSave.isReady
+    if (justBecameReady && paymentToSave.user?.id) {
+      const user = await userCollection.findOne({
+        _id: ObjectId.createFromHexString(paymentToSave.user.id),
+      })
+
+      if (user?.email) {
+        await emailService.sendOrderReadyEmail(user.email, {
+          ...paymentToSave,
+          _id: originalPayment._id.toString(),
+        })
+      }
+    }
+
     return paymentToSave
   } catch (err) {
     console.error('Error updating payment status:', err)
@@ -491,7 +508,7 @@ function _buildCriteria(filterBy) {
 }
 
 function _buildSort(filterBy) {
-  if (filterBy.sortDir === '1') {
+  if (filterBy.sortDir === '1' || filterBy.sortDir === 1) {
     return { createdAt: -1 }
   } else {
     return { createdAt: 1 }
@@ -575,34 +592,3 @@ function _modifyObjectToArray(object){
   })
 }
 
-
-async function sendEmail(email){
-  const paymentToSave = {
-    _id: '67d574745946d7aeb4232cde',
-    items: [
-      {
-        title: {
-          he: 'כובע ים',
-          eng: 'Swimming Cap',
-        },
-        price: 20,
-        cover: 'https://res.cloudinary.com/dnxi70mfs/image/upload/v1729002558/HPIM0594_g0hqlu.jpg',
-        id: '672b9df5199f76f780e6e185',
-        quantity: 1,
-        options: ['67d4186ce25355ac8355687c'],
-      },
-    ],
-    pelecardTransactionId: '74445b89-ef63-4e4c-b3c1-ad4dfd7a00f0',
-    amount: 20,
-    orderNum: '0001',
-    createdAt: 1742042228109,
-    isReady: true,
-    user: {
-      id: '673097c52964d2be56fdd6e8',
-      fullname: 'Dor Hakim',
-      phone: '0542044022',
-    },
-    isDelivered: true,
-  }
-  await emailService.sendPaymentConfirmationEmail(email, paymentToSave)
-}

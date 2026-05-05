@@ -74,13 +74,9 @@ app.get('/**', (req, res) => {
 })
 
 import { logger } from './services/logger.service.js'
-import { emailService } from './services/email.service.js'
-import { paymentService } from './api/payment/payment.services.js'
 // const port = process.env.PORT || 5173
 const port = process.env.PORT || 3030
 
 server.listen(port, () => {
   logger.info('Server is running on port: ' + port)
 })
-
-// paymentService.sendEmail('dorhakim100@gmail.com')

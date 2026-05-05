@@ -4,6 +4,7 @@ import { formatTimeValue, capitalizeFirstLetter, formatYMDToDMY } from './util.s
 export const emailService = {
   sendRegistrationConfirmationEmail,
   sendPaymentConfirmationEmail,
+  sendOrderReadyEmail,
 }
 
 
@@ -54,6 +55,27 @@ async function sendPaymentConfirmationEmail(to, payment) {
     console.log({ data })
   } catch (err) {
     console.error('Payment email error:', err)
+  }
+}
+
+async function sendOrderReadyEmail(to, payment) {
+  if (!to) return
+
+  try {
+    const { data, error } = await resend.emails.send({
+      from: `מועדון הספורט כפר שמריהו <${RESEND_FROM_EMAIL}>`,
+      to: [to],
+      subject: `הזמנה #${payment.orderNum} מוכנה לאיסוף`,
+      html: getOrderReadyEmailHtml(payment),
+    })
+
+    if (error) {
+      return console.error({ error })
+    }
+
+    console.log({ data })
+  } catch (err) {
+    console.error('Order ready email error:', err)
   }
 }
 
@@ -176,7 +198,10 @@ function getPaymentConfirmationEmailHtml(payment) {
           <h2 style="margin:0 0 16px;font-size:24px;color:#1f2937;">תודה ${customerName}!</h2>
 
           <p style="margin:0 0 20px;font-size:17px;line-height:1.7;color:#374151;">
-          ההזמנה שלך נקלטה במערכת בהצלחה, אחד מאיתנו כבר מתחיל לעבוד עליה!
+          ההזמנה שלך נקלטה במערכת בהצלחה 🎉
+          </p>
+          <p style="margin:0 0 20px;font-size:17px;line-height:1.7;color:#374151;">
+          אחד מאיתנו כבר מתחיל לעבוד עליה!
           </p>
 
           <div style="background:#f9fafb;border-radius:12px;padding:18px;border:1px solid #e5e7eb;margin-bottom:20px;">
@@ -203,6 +228,57 @@ function getPaymentConfirmationEmailHtml(payment) {
               ${itemsRows}
             </tbody>
           </table>
+
+          <p style="margin:20px 0 0;font-size:16px;color:#374151; text-align:center;">
+            אנחנו זמינים לכל שאלה בטלפון
+          </p>
+          <p style="margin:20px 0 0;font-size:16px;color:#374151; text-align:center;">
+            09-958-0404
+          </p>
+        </div>
+
+        <div style="padding:16px;text-align:center;background:#f9fafb;border-top:1px solid #e5e7eb;">
+          <p style="margin:0;font-size:13px;color:#9ca3af;">
+            הודעה זו נשלחה אוטומטית ממערכת ההזמנות
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+`
+}
+
+function getOrderReadyEmailHtml(payment) {
+  const customerName = capitalizeFirstLetter(payment?.user?.fullname || 'לקוח/ה')
+
+  return `
+  <div dir="rtl" style="margin:0;padding:0;background-color:#f4f7fb;font-family:Arial,sans-serif;">
+    <div style="max-width:600px;margin:40px auto;padding:20px;">
+      <div style="background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,0.08);">
+        <div style="background:linear-gradient(135deg, #6ec1e4, #a8e6a1);padding:24px;text-align:center;">
+          <img
+            src="https://ik.imagekit.io/n4mhohkzp/logo.png?updatedAt=1755684259540"
+            alt="logo"
+            style="width:80px;height:auto;margin-bottom:10px;"
+          />
+          <h1 style="margin:0;font-size:22px;color:#ffffff;">ההזמנה מוכנה</h1>
+        </div>
+
+        <div style="padding:28px 24px;text-align:right;">
+          <h2 style="margin:0 0 16px;font-size:24px;color:#1f2937;">היי ${customerName}!</h2>
+
+          <p style="margin:0 0 20px;font-size:17px;line-height:1.7;color:#374151;">
+            הזמנה מספר <strong style="color:#111827;">${payment.orderNum}</strong> מוכנה ומחכה לך לאיסוף 🎉
+          </p>
+
+          <div style="background:#f9fafb;border-radius:12px;padding:18px;border:1px solid #e5e7eb;margin-bottom:20px;">
+            <p style="margin:0 0 10px;font-size:15px;color:#374151;">
+              <strong>מספר הזמנה:</strong> ${payment.orderNum}
+            </p>
+            <p style="margin:0;font-size:15px;color:#374151;">
+              <strong>סטטוס:</strong> מוכנה לאיסוף
+            </p>
+          </div>
 
           <p style="margin:20px 0 0;font-size:16px;color:#374151; text-align:center;">
             אנחנו זמינים לכל שאלה בטלפון
