@@ -6,6 +6,7 @@ import { dbService } from '../../services/db.service.js'
 import { asyncLocalStorage } from '../../services/als.service.js'
 import { convertToDate } from '../../services/util.service.js'
 import { notifyService } from '../../services/notify.service.js'
+import { emailService } from '../../services/email.service.js'
 import { couponService } from '../coupon/coupon.service.js'
 import { userService } from '../user/user.service.js'
 
@@ -17,6 +18,7 @@ export const paymentService = {
   update,
   cancelTransaction,
   verifyTransaction,
+  sendEmail,
 }
 
 const PAGE_SIZE = 6
@@ -203,6 +205,8 @@ async function savePayment(payment) {
       $set: { ordersIds: userToReturn.ordersIds },
       $set: { items: [] },
     })
+
+    await emailService.sendPaymentConfirmationEmail(user.email, paymentToSave)
     // delete userToReturn.password
     // return userToReturn
     return paymentToSave
@@ -569,4 +573,36 @@ function _modifyObjectToArray(object){
     return Object.values(object).map((value) => {
       return value
   })
+}
+
+
+async function sendEmail(email){
+  const paymentToSave = {
+    _id: '67d574745946d7aeb4232cde',
+    items: [
+      {
+        title: {
+          he: 'כובע ים',
+          eng: 'Swimming Cap',
+        },
+        price: 20,
+        cover: 'https://res.cloudinary.com/dnxi70mfs/image/upload/v1729002558/HPIM0594_g0hqlu.jpg',
+        id: '672b9df5199f76f780e6e185',
+        quantity: 1,
+        options: ['67d4186ce25355ac8355687c'],
+      },
+    ],
+    pelecardTransactionId: '74445b89-ef63-4e4c-b3c1-ad4dfd7a00f0',
+    amount: 20,
+    orderNum: '0001',
+    createdAt: 1742042228109,
+    isReady: true,
+    user: {
+      id: '673097c52964d2be56fdd6e8',
+      fullname: 'Dor Hakim',
+      phone: '0542044022',
+    },
+    isDelivered: true,
+  }
+  await emailService.sendPaymentConfirmationEmail(email, paymentToSave)
 }
