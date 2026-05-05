@@ -50,7 +50,7 @@ export async function getPayments(req, res) {
       pageIdx: req.query.pageIdx,
       isAll: req.query.isAll || false,
       ordersIds: req.query.ordersIds || [],
-      sortDir: req.query.sortDir || 1,
+      sortDir: +req.query.sortDir || 1,
       isAdmin: req.query.isAdmin === 'true' ? true : false,
       isMax: req.query.isMax === 'true' ? true : false,
     }

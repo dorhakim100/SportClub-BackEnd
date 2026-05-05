@@ -214,13 +214,18 @@ async function savePayment(payment) {
 
 async function query(filterBy = { txt: '' }) {
   try {
+
+    filterBy.ordersIds = _modifyObjectToArray(filterBy.ordersIds)
+
     const criteria = _buildCriteria(filterBy)
     const sort = _buildSort(filterBy)
 
     const collection = await dbService.getCollection('payment')
     const pipeline = [
       {
-        $match: { ...criteria, 'user.id': { $ne: '673097c52964d2be56fdd6e8' } },
+        $match: { ...criteria, 
+          'user.id': filterBy.isAdmin ? { $ne: '673097c52964d2be56fdd6e8' } : {} 
+        },
       },
 
       // Build allOptionIds from items' options if needed
@@ -557,4 +562,11 @@ async function cancelTransaction({ confirmationKey, uniqueKey, total }) {
     logger.error('Error canceling transaction:', err)
     throw err
   }
+}
+
+function _modifyObjectToArray(object){
+  if(Array.isArray(object)) return object
+    return Object.values(object).map((value) => {
+      return value
+  })
 }
