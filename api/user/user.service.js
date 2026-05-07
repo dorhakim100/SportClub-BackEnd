@@ -126,12 +126,20 @@ async function update(user) {
       memberStatus: user.memberStatus,
     }
     let hash
+    let phoneToSave = user.phone
     if (user.password) {
       hash = await bcrypt.hash(user.password, saltRounds)
       userToSave.password = hash
     }
     const collection = await dbService.getCollection('user')
-    await collection.updateOne({ _id: userToSave._id }, { $set: userToSave })
+    
+    if(!phoneToSave || phoneToSave === '' || phoneToSave === null){
+      const existingUser = await collection.findOne({ _id: userToSave._id })
+      phoneToSave = existingUser?.phone || ''
+    }
+
+    
+    await collection.updateOne({ _id: userToSave._id }, { $set: {...userToSave, phone: phoneToSave} })
     const userToSend = collection.findOne({ _id: userToSave._id })
 
     return userToSend

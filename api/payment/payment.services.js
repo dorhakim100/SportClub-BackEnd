@@ -8,7 +8,9 @@ import { convertToDate } from '../../services/util.service.js'
 import { notifyService } from '../../services/notify.service.js'
 import { emailService } from '../../services/email.service.js'
 import { couponService } from '../coupon/coupon.service.js'
+import { itemService } from '../item/item.service.js'
 import { userService } from '../user/user.service.js'
+
 
 export const paymentService = {
   getLink,
@@ -32,6 +34,7 @@ const ErrorURL = 'https://www.moadonsport.com/payment/error'
 async function getLink(order, loggedinUser) {
   try {
     const returnedUser = await userService.getById(loggedinUser.id)
+    const originalItems = await itemService.queryCart(order.items)
 
     const isMember =
       returnedUser.memberStatus.isMember &&
@@ -62,14 +65,16 @@ async function getLink(order, loggedinUser) {
         )
 
         if (!matchedDiscountItem) return // Skip if no match is found
+        if(item.isDiscount) return // Skip if item already has a discount
 
-        const idx = order.items.findIndex((cartItem) => cartItem.id === item.id)
-        let itemToModify = order.items[idx]
+        const idx = originalItems.findIndex((cartItem) => cartItem.id === item.id)
+        let itemToModify = originalItems[idx]
+        const originalItem = originalItems[idx]
 
         if (discount.type === 'fixed') {
           itemToModify = {
             ...itemToModify,
-            price: itemToModify.price - discount.amount,
+            price: originalItem.price - discount.amount,
             isDiscount: true,
           }
         }
@@ -78,7 +83,7 @@ async function getLink(order, loggedinUser) {
           itemToModify = {
             ...itemToModify,
             price:
-              itemToModify.price - itemToModify.price * (discount.amount / 100),
+              originalItem.price - originalItem.price * (discount.amount / 100),
             isDiscount: true,
           }
         }
