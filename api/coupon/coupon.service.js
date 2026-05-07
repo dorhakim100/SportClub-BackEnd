@@ -124,7 +124,7 @@ async function getDiscount(couponCode) {
     const coupon = await collection.findOne(criteria)
 
     if (coupon && coupon.isActive) {
-      return { amount: coupon.amount, type: coupon.type, items: coupon.items }
+      return { amount: coupon.amount, type: coupon.type, items: coupon.items, code: coupon.code }
     } else {
       throw new Error(`Couldn't find coupon`)
     }
@@ -143,7 +143,7 @@ function _buildCriteria(filterBy) {
     criteria.isActive = { $eq: true }
   }
   if (filterBy.code) {
-    criteria.code = filterBy.code
+    criteria.code = filterBy.code.toUpperCase()
   }
 
   return criteria
