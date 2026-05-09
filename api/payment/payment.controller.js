@@ -191,10 +191,7 @@ export async function getEarnings(req, res) {
   try {
     const from = req.query.from
     const to = req.query.to
-    console.log('from: ', from);
-    console.log('to: ', to);
     const earnings = await paymentService.getEarnings({ from, to })
-    logger.info('Earnings: ', earnings);
     res.json(earnings)
   } catch (err) {
     logger.error('Failed to get earnings', err)
