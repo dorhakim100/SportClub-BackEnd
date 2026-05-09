@@ -3,6 +3,7 @@ import cron from 'node-cron'
 import { dbService } from './db.service.js'
 import { emailService } from './email.service.js'
 import { logger } from './logger.service.js'
+import { itemService } from '../api/item/item.service.js'
 
 const TIMEZONE = 'Asia/Jerusalem'
 const ABANDONED_HOURS = 48
@@ -26,6 +27,8 @@ export function setupAbandonedCartScheduler() {
   )
 }
 
+runAbandonedCartSchedulerCycle()
+
 async function runAbandonedCartSchedulerCycle() {
   try {
     
@@ -38,7 +41,43 @@ async function runAbandonedCartSchedulerCycle() {
       .toArray()
   
     const cutoffTimestamp = Date.now() - ABANDONED_HOURS * 60 * 60 * 1000 // 48 hours ago
-    const usersWithEligibleItems = users
+
+    const eligibleUsers = await Promise.all(users.map(async (user)=>{
+
+      const items = user?.items || []
+
+      const hasMissingItems = items.some((item)=>!item?.title || !item?.price)
+
+      if(!hasMissingItems) return Promise.resolve(user)
+
+      const newItems = await Promise.all(items.map(async(item)=>{
+        try {
+          const originalItem = item
+
+          if(originalItem.title && originalItem.price) return originalItem
+
+          const backendItem = await itemService.getById(item.id)
+          
+          return {
+            ...originalItem,
+            title: backendItem?.title,
+            price: backendItem?.price,
+          }
+          
+        } catch (err) {
+          logger.error('Failed getting item details', { err })
+          return null
+        }
+      }))
+      
+
+      return {
+        user,
+        eligibleItems,
+      }
+    }))
+
+    const usersWithEligibleItems = eligibleUsers
       .map((user) => ({
         user,
         eligibleItems: getEligibleItemsToEmail(user.items, cutoffTimestamp),
@@ -54,13 +93,16 @@ async function runAbandonedCartSchedulerCycle() {
   
     for (const { user, eligibleItems } of usersWithEligibleItems) {
       try {
-        await emailService.sendAbandonedCartReminderEmail(
-          user.email,
-          user,
-          eligibleItems
-        )
+
+        console.log(eligibleItems);
+        
+        // await emailService.sendAbandonedCartReminderEmail(
+        //   user.email,
+        //   user,
+        //   eligibleItems
+        // )
   
-        await markItemsAsEmailSent(collection, user, cutoffTimestamp)
+        // await markItemsAsEmailSent(collection, user, cutoffTimestamp)
         sentEmails++
       } catch (err) {
         logger.error('Failed sending abandoned-cart email for user', {
@@ -85,6 +127,8 @@ async function runAbandonedCartSchedulerCycle() {
 function getEligibleItemsToEmail(items = [], cutoffTimestamp) {
   return items.filter((item) => {
     if (!item || item?.emailSent) return false
+
+    if(!item?.addedAt) return true
 
     const addedAtTimestamp = normalizeToTimestamp(item.addedAt)
     if (!addedAtTimestamp) return false

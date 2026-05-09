@@ -74,8 +74,7 @@ app.get('/**', (req, res) => {
 })
 
 import { logger } from './services/logger.service.js'
-import { userService } from './api/user/user.service.js'
-import { emailService } from './services/email.service.js'
+import { setupAbandonedCartScheduler } from './services/abandonedCartScheduler.service.js'
 // const port = process.env.PORT || 5173
 const port = process.env.PORT || 3030
 
@@ -83,19 +82,5 @@ server.listen(port, () => {
   logger.info('Server is running on port: ' + port)
 })
 
-// sendTestEmail()
 
-async function sendTestEmail(){
-
-  try {
-
-    const user = await userService.getByUsername('dorhakim100@gmail.com')
-    console.log(user);
-   const result = await emailService.sendAbandonedCartReminderEmail(user.email, user)
-   console.log(result);
-    
-  } catch (err) {
-
-    console.error(err);
-  }
-}
+setupAbandonedCartScheduler()
