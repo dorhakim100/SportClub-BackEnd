@@ -601,7 +601,9 @@ function _modifyObjectToArray(object){
 async function getEarnings({ from, to }) {
   try {
     const collection = await dbService.getCollection('payment')
-    const payments = await collection.find({ createdAt: { $gte: new Date(from).getTime(), $lte: new Date(to).getTime() } }).toArray()
+    const payments = await collection.find({
+      'user.id': { $ne: '673097c52964d2be56fdd6e8' },
+      createdAt: { $gte: new Date(from).getTime(), $lte: new Date(to).getTime() } }).toArray()
 
     const earnings = payments.reduce((accu, payment) => {
       return accu + payment.amount
