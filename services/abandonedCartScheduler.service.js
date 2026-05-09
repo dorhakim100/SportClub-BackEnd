@@ -27,8 +27,6 @@ export function setupAbandonedCartScheduler() {
   )
 }
 
-runAbandonedCartSchedulerCycle()
-
 async function runAbandonedCartSchedulerCycle() {
   try {
     
@@ -58,10 +56,12 @@ async function runAbandonedCartSchedulerCycle() {
 
           const backendItem = await itemService.getById(item.id)
           
+          
           return {
             ...originalItem,
             title: backendItem?.title,
             price: backendItem?.price,
+            cover:backendItem?.imgs?.[0],
           }
           
         } catch (err) {
@@ -69,18 +69,19 @@ async function runAbandonedCartSchedulerCycle() {
           return null
         }
       }))
+
       
 
       return {
         user,
-        eligibleItems,
+        items: newItems,
       }
     }))
 
     const usersWithEligibleItems = eligibleUsers
       .map((user) => ({
-        user,
-        eligibleItems: getEligibleItemsToEmail(user.items, cutoffTimestamp),
+        ...user,
+        eligibleItems: getEligibleItemsToEmail(user.items, cutoffTimestamp, user),
       }))
       .filter(({ eligibleItems }) => eligibleItems.length > 0)
   
@@ -90,19 +91,22 @@ async function runAbandonedCartSchedulerCycle() {
     })
   
     let sentEmails = 0
-  
-    for (const { user, eligibleItems } of usersWithEligibleItems) {
+
+    
+    
+    
+    for (const user of usersWithEligibleItems) {
+      
       try {
 
-        console.log(eligibleItems);
+        user.items = user.eligibleItems
         
-        // await emailService.sendAbandonedCartReminderEmail(
-        //   user.email,
-        //   user,
-        //   eligibleItems
-        // )
+        await emailService.sendAbandonedCartReminderEmail(
+          user.email,
+          user
+        )
   
-        // await markItemsAsEmailSent(collection, user, cutoffTimestamp)
+        await markItemsAsEmailSent(user, collection)
         sentEmails++
       } catch (err) {
         logger.error('Failed sending abandoned-cart email for user', {
@@ -124,11 +128,12 @@ async function runAbandonedCartSchedulerCycle() {
   }
 }
 
-function getEligibleItemsToEmail(items = [], cutoffTimestamp) {
+function getEligibleItemsToEmail(items = [], cutoffTimestamp, user) {
   return items.filter((item) => {
     if (!item || item?.emailSent) return false
 
     if(!item?.addedAt) return true
+  
 
     const addedAtTimestamp = normalizeToTimestamp(item.addedAt)
     if (!addedAtTimestamp) return false
@@ -137,24 +142,20 @@ function getEligibleItemsToEmail(items = [], cutoffTimestamp) {
   })
 }
 
-async function markItemsAsEmailSent(collection, user, cutoffTimestamp) {
+async function markItemsAsEmailSent(user, collection) {
   const originalItems = Array.isArray(user?.items) ? user.items : []
   if (!originalItems.length) return
 
-  let hasChanges = false
   const nextItems = originalItems.map((item) => {
-    if (!item || item.emailSent === true) return item
-
-    const addedAtTimestamp = normalizeToTimestamp(item.addedAt)
-    if (!addedAtTimestamp || addedAtTimestamp > cutoffTimestamp) return item
-
-    hasChanges = true
-    return { ...item, emailSent: true }
+    return {
+      ...item,
+      emailSent: true,
+    }
   })
 
-  if (!hasChanges) return
 
   await collection.updateOne({ _id: user._id }, { $set: { items: nextItems } })
+
 }
 
 function normalizeToTimestamp(value) {

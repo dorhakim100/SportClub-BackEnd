@@ -328,7 +328,10 @@ function getAbandonedCartReminderEmailHtml(user, items) {
   const customerName = capitalizeFirstLetter(user?.fullname || 'לקוח/ה')
   const itemsCount = items.reduce((acc, item) => acc + (item?.quantity || 1), 0)
   const totalPrice = items.reduce((acc, item) => acc + (Number(item?.price || 0) * Number(item?.quantity || 1)), 0)
-
+  const earlySeasonDiscountBadge = Date.now() < new Date().getMonth() < 6 ? '<span style="display:inline-block;background:#fee2e2;color:#b91c1c;padding:4px 8px;border-radius:999px;font-size:12px;font-weight:700; margin-bottom:10px; text-align:center;">לפני שהטבת המכירה המוקדמת מסתיימת!</span>' : ''
+  let hasDiscount = false
+  
+  
   const itemsRows = items
     .map((item) => {
       const quantity = Number(item?.quantity || 1)
@@ -340,6 +343,9 @@ function getAbandonedCartReminderEmailHtml(user, items) {
         ? '<span style="display:inline-block;background:#fee2e2;color:#b91c1c;padding:4px 8px;border-radius:999px;font-size:12px;font-weight:700;">הנחה</span>'
         : ''
 
+      if(item?.isDiscount) hasDiscount = true
+
+
       return `
       <tr>
         <td style="padding:12px 8px;border-bottom:1px solid #e5e7eb;">
@@ -348,6 +354,7 @@ function getAbandonedCartReminderEmailHtml(user, items) {
             <div  style="margin-right:10px;">
               <p style="margin:0 0 6px;font-size:14px;color:#111827;font-weight:600;">${itemTitle}</p>
               ${discountBadge}
+          
             </div>
           </div>
         </td>
@@ -381,7 +388,7 @@ function getAbandonedCartReminderEmailHtml(user, items) {
             רוצה להשלים את ההזמנה עכשיו?
           </p>
 
-
+    ${hasDiscount ? earlySeasonDiscountBadge : ''}
 
           <table style="width:100%;border-collapse:collapse;background:#ffffff;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;">
             <thead>
