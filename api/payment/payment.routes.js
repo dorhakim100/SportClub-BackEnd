@@ -11,6 +11,7 @@ import {
   errorPayment,
   addPayment,
   getPayments,
+  getEarnings,
   updatePayment,
   getOpenPayments,
 } from './payment.controller.js'
@@ -25,6 +26,7 @@ router.post('/initiate', log, initiatePayment)
 router.post('/add', log, addPayment)
 router.put('/:id', requireAdmin, updatePayment)
 router.get('/openLength', log, getOpenPayments)
+router.get('/earnings', requireAdmin, getEarnings)
 
 router.get('/success', log, successPayment)
 router.get('/error', log, errorPayment)

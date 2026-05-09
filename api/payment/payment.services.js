@@ -20,6 +20,7 @@ export const paymentService = {
   update,
   cancelTransaction,
   verifyTransaction,
+  getEarnings,
 }
 
 const PAGE_SIZE = 6
@@ -597,3 +598,18 @@ function _modifyObjectToArray(object){
   })
 }
 
+async function getEarnings({ from, to }) {
+  try {
+    const collection = await dbService.getCollection('payment')
+    const payments = await collection.find({ createdAt: { $gte: new Date(from).getTime(), $lte: new Date(to).getTime() } }).toArray()
+
+    const earnings = payments.reduce((accu, payment) => {
+      return accu + payment.amount
+    }, 0)
+
+    return earnings
+  } catch (err) {
+    logger.error('Failed to get earnings', err)
+    throw err
+  }
+}
