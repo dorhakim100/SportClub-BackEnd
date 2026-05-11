@@ -59,13 +59,6 @@ async function getById(userId) {
 
     criteria = { byUserId: userId }
 
-    // later, add orders
-    // user.givenReviews = await reviewService.query(criteria)
-    // user.givenReviews = user.givenReviews.map(review => {
-    //     delete review.byUser
-    //     return review
-    // })
-
     return user
   } catch (err) {
     logger.error(`while finding user by id: ${userId}`, err)

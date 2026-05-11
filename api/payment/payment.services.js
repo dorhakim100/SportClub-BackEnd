@@ -139,6 +139,13 @@ async function getLink(order, loggedinUser) {
       )
     }
 
+    const existingUser = await userService.getById(order.user.id)
+
+    if(existingUser.phone !== order.user.phone){
+      existingUser._id = order.user.id
+      await userService.update({ ...existingUser, phone: order.user.phone })
+    }
+
     const result = await response.json()
     logger.info('Payment link successfully retrieved:', result)
 
