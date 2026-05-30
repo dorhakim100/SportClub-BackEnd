@@ -11,7 +11,6 @@ import { couponService } from '../coupon/coupon.service.js'
 import { itemService } from '../item/item.service.js'
 import { userService } from '../user/user.service.js'
 
-
 export const paymentService = {
   getLink,
   savePayment,
@@ -31,6 +30,9 @@ const Render_ErrorURL = 'https://sportclub-kfar.onrender/payment/error'
 // const ErrorURL = 'http://localhost:5173/payment/error'
 const GoodURL = 'https://www.moadonsport.com/payment/success'
 const ErrorURL = 'https://www.moadonsport.com/payment/error'
+
+const ADMIN_EMAIL = 'sportclub.kfar@gmail.com'
+const ADMIN_SERVICE = 'service.kfar@gmail.com'
 
 async function getLink(order, loggedinUser) {
   try {
@@ -66,9 +68,11 @@ async function getLink(order, loggedinUser) {
         )
 
         if (!matchedDiscountItem) return // Skip if no match is found
-        if(item.isDiscount) return // Skip if item already has a discount
+        if (item.isDiscount) return // Skip if item already has a discount
 
-        const idx = originalItems.findIndex((cartItem) => cartItem.id === item.id)
+        const idx = originalItems.findIndex(
+          (cartItem) => cartItem.id === item.id
+        )
         let itemToModify = originalItems[idx]
         const originalItem = originalItems[idx]
 
@@ -141,7 +145,7 @@ async function getLink(order, loggedinUser) {
 
     const existingUser = await userService.getById(order.user.id)
 
-    if(existingUser.phone !== order.user.phone){
+    if (existingUser.phone !== order.user.phone) {
       existingUser._id = order.user.id
       await userService.update({ ...existingUser, phone: order.user.phone })
     }
@@ -219,8 +223,22 @@ async function savePayment(payment) {
     })
 
     await emailService.sendPaymentConfirmationEmail(user.email, paymentToSave)
-    // delete userToReturn.password
-    // return userToReturn
+
+    // Send emails to admins, can be used without awaiting
+    emailService
+      .sendPaymentConfirmationEmail(ADMIN_EMAIL, paymentToSave)
+      .catch((err) => {
+        console.error('Error sending payment confirmation email to admin:', err)
+      })
+    emailService
+      .sendPaymentConfirmationEmail(ADMIN_SERVICE, paymentToSave)
+      .catch((err) => {
+        console.error(
+          'Error sending payment confirmation email to admin service:',
+          err
+        )
+      })
+
     return paymentToSave
   } catch (err) {
     console.error('Error saving payment:', err)
@@ -230,7 +248,6 @@ async function savePayment(payment) {
 
 async function query(filterBy = { txt: '' }) {
   try {
-
     filterBy.ordersIds = _modifyObjectToArray(filterBy.ordersIds)
 
     const criteria = _buildCriteria(filterBy)
@@ -239,11 +256,7 @@ async function query(filterBy = { txt: '' }) {
     const collection = await dbService.getCollection('payment')
     const pipeline = [
       {
-        $match: { ...criteria, 
-          'user.id': 
-          { $ne: '673097c52964d2be56fdd6e8' } 
-
-        },
+        $match: { ...criteria, 'user.id': { $ne: '673097c52964d2be56fdd6e8' } },
       },
 
       // Build allOptionIds from items' options if needed
@@ -598,10 +611,10 @@ async function cancelTransaction({ confirmationKey, uniqueKey, total }) {
   }
 }
 
-function _modifyObjectToArray(object){
-  if(Array.isArray(object)) return object
-    return Object.values(object).map((value) => {
-      return value
+function _modifyObjectToArray(object) {
+  if (Array.isArray(object)) return object
+  return Object.values(object).map((value) => {
+    return value
   })
 }
 
@@ -609,10 +622,16 @@ async function getEarnings({ from, to }) {
   try {
     const dayInMiliseconds = 1000 * 60 * 60 * 24
     const collection = await dbService.getCollection('payment')
-    const payments = await collection.find({
-      'user.id': { $ne: '673097c52964d2be56fdd6e8' },
-      createdAt: { $gte: new Date(from).getTime(), $lte: new Date(to).getTime() + dayInMiliseconds - 1 } }).toArray()
-      // From is the start of the day, to is the end of the day
+    const payments = await collection
+      .find({
+        'user.id': { $ne: '673097c52964d2be56fdd6e8' },
+        createdAt: {
+          $gte: new Date(from).getTime(),
+          $lte: new Date(to).getTime() + dayInMiliseconds - 1,
+        },
+      })
+      .toArray()
+    // From is the start of the day, to is the end of the day
 
     const earnings = payments.reduce((accu, payment) => {
       return accu + payment.amount

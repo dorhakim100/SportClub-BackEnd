@@ -1,5 +1,9 @@
-import { Resend } from 'resend';
-import { formatTimeValue, capitalizeFirstLetter, formatYMDToDMY } from './util.service.js';
+import { Resend } from 'resend'
+import {
+  formatTimeValue,
+  capitalizeFirstLetter,
+  formatYMDToDMY,
+} from './util.service.js'
 
 export const emailService = {
   sendRegistrationConfirmationEmail,
@@ -8,31 +12,44 @@ export const emailService = {
   sendAbandonedCartReminderEmail,
 }
 
-
-const resend = new Resend(process.env.RESEND_API_KEY);
+const resend = new Resend(process.env.RESEND_API_KEY)
 
 const REGISTER_URL = 'https://www.moadonsport.com/register'
-const RESEND_FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev'
+const RESEND_FROM_EMAIL =
+  process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev'
 
-async function sendRegistrationConfirmationEmail(to, name, date, startHour, endHour, facility) {
-    facility = facility === 'pool' ? 'בריכה' : 'חדר הכושר'
-    name = capitalizeFirstLetter(name)
-    startHour = formatTimeValue(startHour)
-    endHour = formatTimeValue(endHour)
-    date = formatYMDToDMY(date)
+async function sendRegistrationConfirmationEmail(
+  to,
+  name,
+  date,
+  startHour,
+  endHour,
+  facility
+) {
+  facility = facility === 'pool' ? 'בריכה' : 'חדר הכושר'
+  name = capitalizeFirstLetter(name)
+  startHour = formatTimeValue(startHour)
+  endHour = formatTimeValue(endHour)
+  date = formatYMDToDMY(date)
   try {
-  const { data, error } = await resend.emails.send({
-    from: `מועדון הספורט כפר שמריהו <${RESEND_FROM_EMAIL}>`,
+    const { data, error } = await resend.emails.send({
+      from: `מועדון הספורט כפר שמריהו <${RESEND_FROM_EMAIL}>`,
 
-    to: [to],
-    subject: `רישום מראש - ${facility} - ${date} - ${endHour} - ${startHour}`,
-    html: getRegistrationConfirmationEmailHtml(name, date, startHour, endHour, facility),
-  });
-  
-  if (error) {
-      return console.error({ error });
+      to: [to],
+      subject: `רישום מראש - ${facility} - ${date} - ${endHour} - ${startHour}`,
+      html: getRegistrationConfirmationEmailHtml(
+        name,
+        date,
+        startHour,
+        endHour,
+        facility
+      ),
+    })
+
+    if (error) {
+      return console.error({ error })
     }
-    console.log({ data });
+    console.log({ data })
   } catch (err) {
     console.error('Email error:', err)
   }
@@ -104,10 +121,13 @@ async function sendAbandonedCartReminderEmail(to, user) {
   }
 }
 
-function getRegistrationConfirmationEmailHtml(name, date, startHour, endHour, facility) {
-
-
-
+function getRegistrationConfirmationEmailHtml(
+  name,
+  date,
+  startHour,
+  endHour,
+  facility
+) {
   return `
   <div dir="rtl" style="margin:0;padding:0;background-color:#f4f7fb;font-family:Arial,sans-serif;">
     <div style="max-width:600px;margin:40px auto;padding:20px;">
@@ -188,7 +208,9 @@ function getRegistrationConfirmationEmailHtml(name, date, startHour, endHour, fa
 
 function getPaymentConfirmationEmailHtml(payment) {
   const orderDate = new Date(payment.createdAt).toLocaleDateString('he-IL')
-  const customerName = capitalizeFirstLetter(payment?.user?.fullname || 'לקוח/ה')
+  const customerName = capitalizeFirstLetter(
+    payment?.user?.fullname || 'לקוח/ה'
+  )
   const itemsRows = (payment.items || [])
     .map((item) => {
       const itemTitle = item?.title?.he || item?.title?.eng || 'מוצר'
@@ -274,7 +296,9 @@ function getPaymentConfirmationEmailHtml(payment) {
 }
 
 function getOrderReadyEmailHtml(payment) {
-  const customerName = capitalizeFirstLetter(payment?.user?.fullname || 'לקוח/ה')
+  const customerName = capitalizeFirstLetter(
+    payment?.user?.fullname || 'לקוח/ה'
+  )
 
   return `
   <div dir="rtl" style="margin:0;padding:0;background-color:#f4f7fb;font-family:Arial,sans-serif;">
@@ -327,24 +351,33 @@ function getOrderReadyEmailHtml(payment) {
 function getAbandonedCartReminderEmailHtml(user, items) {
   const customerName = capitalizeFirstLetter(user?.fullname || 'לקוח/ה')
   const itemsCount = items.reduce((acc, item) => acc + (item?.quantity || 1), 0)
-  const totalPrice = items.reduce((acc, item) => acc + (Number(item?.price || 0) * Number(item?.quantity || 1)), 0)
-  const earlySeasonDiscountBadge = Date.now() < new Date().getMonth() < 6 ? '<span style="display:inline-block;background:#fee2e2;color:#b91c1c;padding:4px 8px;border-radius:999px;font-size:12px;font-weight:700; margin-bottom:10px; text-align:center;">לפני שהטבת המכירה המוקדמת מסתיימת!</span>' : ''
+  const totalPrice = items.reduce(
+    (acc, item) => acc + Number(item?.price || 0) * Number(item?.quantity || 1),
+    0
+  )
+  const earlySeasonDiscountBadge =
+    Date.now() < new Date().getMonth() < 6
+      ? '<span style="display:inline-block;background:#fee2e2;color:#b91c1c;padding:4px 8px;border-radius:999px;font-size:12px;font-weight:700; margin-bottom:10px; text-align:center;">לפני שהטבת המכירה המוקדמת מסתיימת!</span>'
+      : ''
   let hasDiscount = false
-  
-  
+
   const itemsRows = items
     .map((item) => {
       const quantity = Number(item?.quantity || 1)
       const itemPrice = Number(item?.price || 0)
       const lineTotal = itemPrice * quantity
-      const cover = item?.cover || item?.imgs?.[0] || 'https://ik.imagekit.io/n4mhohkzp/logo.png?updatedAt=1755684259540'
-      const itemTitle = escapeHtml(item?.title?.he || item?.title?.eng || item?.title || 'מוצר')
+      const cover =
+        item?.cover ||
+        item?.imgs?.[0] ||
+        'https://ik.imagekit.io/n4mhohkzp/logo.png?updatedAt=1755684259540'
+      const itemTitle = escapeHtml(
+        item?.title?.he || item?.title?.eng || item?.title || 'מוצר'
+      )
       const discountBadge = item?.isDiscount
         ? '<span style="display:inline-block;background:#fee2e2;color:#b91c1c;padding:4px 8px;border-radius:999px;font-size:12px;font-weight:700;">הנחה</span>'
         : ''
 
-      if(item?.isDiscount) hasDiscount = true
-
+      if (item?.isDiscount) hasDiscount = true
 
       return `
       <tr>
@@ -382,8 +415,12 @@ function getAbandonedCartReminderEmailHtml(user, items) {
           <h2 style="margin:0 0 16px;font-size:24px;color:#1f2937;">היי ${customerName}!</h2>
 
           <p style="margin:0 0 20px;font-size:17px;line-height:1.7;color:#374151;">
-          ${items.count > 1 ? ` שמרנו עבורך ${itemsCount} פריטים בעגלה.
-` : `שמרנו עבורך את הפריט שבעגלה.`}
+          ${
+            items.count > 1
+              ? ` שמרנו עבורך ${itemsCount} פריטים בעגלה.
+`
+              : `שמרנו עבורך את הפריט שבעגלה.`
+          }
             <br/>
             רוצה להשלים את ההזמנה עכשיו?
           </p>
@@ -447,8 +484,7 @@ function escapeHtml(value = '') {
 }
 
 function getCartUrl(user) {
-
-  if(!user || !user._id) return 'https://www.moadonsport.com/'
+  if (!user || !user._id) return 'https://www.moadonsport.com/'
 
   return `https://www.moadonsport.com/user/${user._id}/cart`
 }
