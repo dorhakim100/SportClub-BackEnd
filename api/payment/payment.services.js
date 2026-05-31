@@ -222,16 +222,20 @@ async function savePayment(payment) {
       $set: { items: [] },
     })
 
-    await emailService.sendPaymentConfirmationEmail(user.email, paymentToSave)
+    await emailService.sendPaymentConfirmationEmail(
+      user.email,
+      paymentToSave,
+      false
+    )
 
     // Send emails to admins, can be used without awaiting
     emailService
-      .sendPaymentConfirmationEmail(ADMIN_EMAIL, paymentToSave)
+      .sendPaymentConfirmationEmail(ADMIN_EMAIL, paymentToSave, true)
       .catch((err) => {
         console.error('Error sending payment confirmation email to admin:', err)
       })
     emailService
-      .sendPaymentConfirmationEmail(ADMIN_SERVICE, paymentToSave)
+      .sendPaymentConfirmationEmail(ADMIN_SERVICE, paymentToSave, true)
       .catch((err) => {
         console.error(
           'Error sending payment confirmation email to admin service:',

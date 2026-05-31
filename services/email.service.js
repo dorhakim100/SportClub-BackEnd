@@ -55,14 +55,18 @@ async function sendRegistrationConfirmationEmail(
   }
 }
 
-async function sendPaymentConfirmationEmail(to, payment) {
+async function sendPaymentConfirmationEmail(to, payment, isAdmin = false) {
   if (!to) return
+
+  const subject = isAdmin
+    ? `הזמנה חדשה התקבלה - #${payment.orderNum}`
+    : `אישור הזמנה #${payment.orderNum}`
 
   try {
     const { data, error } = await resend.emails.send({
       from: `מועדון הספורט כפר שמריהו <${RESEND_FROM_EMAIL}>`,
       to: [to],
-      subject: `אישור הזמנה #${payment.orderNum}`,
+      subject: subject,
       html: getPaymentConfirmationEmailHtml(payment),
     })
 
@@ -259,7 +263,7 @@ function getPaymentConfirmationEmailHtml(payment) {
               <strong>תאריך:</strong> ${orderDate}
             </p>
             <p style="margin:0;font-size:15px;color:#374151;">
-              <strong>סה"כ לתשלום:</strong> ${payment.amount}₪
+              <strong>סה"כ תשלום:</strong> ${payment.amount}₪
             </p>
           </div>
 
